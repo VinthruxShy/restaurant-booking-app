@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ระบบจองโต๊ะร้านอาหาร</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211d;
+      --muted: #63706a;
+      --line: #dce4df;
+      --paper: #fbfcfa;
+      --panel: #ffffff;
+      --green: #16794a;
+      --red: #c2412f;
+      --amber: #b7791f;
+      --blue: #2563a9;
+      --soft-green: #e6f5ed;
+      --soft-red: #fde8e4;
+      --soft-amber: #fff4da;
+      --soft-blue: #e8f0fb;
+      --shadow: 0 16px 40px rgba(32, 44, 38, .10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Tahoma, "Noto Sans Thai", Arial, sans-serif;
+      background: linear-gradient(180deg, #f3f7f4 0%, #fbfcfa 34%, #eef5f1 100%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    button, input, select { font: inherit; }
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: var(--ink);
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    button.secondary { background: #eef3ef; color: var(--ink); border: 1px solid var(--line); }
+    button.good { background: var(--green); }
+    button.bad { background: var(--red); }
+    button.warn { background: var(--amber); }
+    button:disabled { opacity: .48; cursor: not-allowed; }
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: white;
+      color: var(--ink);
+    }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 700; }
+    .shell { max-width: 1180px; margin: 0 auto; padding: 18px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .mark {
+      width: 42px; height: 42px; border-radius: 8px;
+      display: grid; place-items: center;
+      background: var(--ink); color: white; font-weight: 900;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(24px, 4vw, 42px); margin-bottom: 4px; letter-spacing: 0; }
+    h2 { font-size: 22px; margin-bottom: 12px; }
+    h3 { font-size: 16px; margin-bottom: 8px; }
+    .muted { color: var(--muted); }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tabs button.active { background: var(--green); }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; align-items: start; }
+    .panel {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    .floor {
+      min-height: 420px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(23,33,29,.04) 1px, transparent 1px),
+        linear-gradient(rgba(23,33,29,.04) 1px, transparent 1px),
+        #f8faf8;
+      background-size: 34px 34px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(112px, 1fr));
+      gap: 14px;
+      position: relative;
+    }
+    .table-card {
+      min-height: 148px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      padding: 12px;
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+      transition: transform .16s ease, border-color .16s ease;
+    }
+    .table-card.pickable:hover { transform: translateY(-2px); border-color: var(--green); }
+    .table-card.selected { outline: 4px solid rgba(22,121,74,.18); border-color: var(--green); }
+    .table-card.available { background: var(--soft-green); }
+    .table-card.reserved { background: var(--soft-blue); }
+    .table-card.occupied { background: var(--soft-red); }
+    .table-card.dirty { background: var(--soft-amber); }
+    .table-card .muted { color: #33423b; }
+    .table-title { font-size: 24px; font-weight: 900; color: #17211d; }
+    .table-model {
+      display: grid;
+      grid-template-columns: 18px 1fr 18px;
+      grid-template-rows: 18px 56px 18px;
+      gap: 5px;
+      align-items: center;
+      justify-items: center;
+      min-height: 102px;
+    }
+    .table-surface {
+      grid-column: 2;
+      grid-row: 2;
+      width: 100%;
+      max-width: 96px;
+      height: 56px;
+      border-radius: 14px;
+      border: 2px solid rgba(23,33,29,.32);
+      background: linear-gradient(145deg, #ffffff, rgba(255,255,255,.62));
+      box-shadow: inset 0 0 0 5px rgba(255,255,255,.45), 0 8px 18px rgba(23,33,29,.12);
+      display: grid;
+      place-items: center;
+    }
+    .chair {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      background: rgba(23,33,29,.26);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.35);
+    }
+    .chair.top { grid-column: 2; grid-row: 1; width: 50px; height: 14px; }
+    .chair.right { grid-column: 3; grid-row: 2; height: 42px; }
+    .chair.bottom { grid-column: 2; grid-row: 3; width: 50px; height: 14px; }
+    .chair.left { grid-column: 1; grid-row: 2; height: 42px; }
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid rgba(0,0,0,.08);
+      background: white;
+      color: #17211d;
+    }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .full { grid-column: 1 / -1; }
+    .notice {
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--soft-blue);
+      color: #17365e;
+      border: 1px solid #c9dbf5;
+      margin-bottom: 12px;
+    }
+    .notice.closed { background: var(--soft-red); color: #7f2418; border-color: #f5c6bf; }
+    .list { display: grid; gap: 10px; }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: white;
+    }
+    .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .menu { display: grid; gap: 8px; }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .dish-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: white;
+      display: grid;
+      gap: 10px;
+    }
+    .dish-card h3 { margin: 0; font-size: 17px; }
+    .choice-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .qty { width: 72px; }
+    .price-note { font-weight: 800; color: var(--green); white-space: nowrap; }
+    .time-selects {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .colon { font-weight: 900; color: var(--ink); }
+    .qr-card {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      text-align: center;
+    }
+    .qr-card img {
+      width: 190px;
+      height: 190px;
+      border: 8px solid #fff;
+      box-shadow: 0 8px 24px rgba(23,33,29,.16);
+    }
+    .statusbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+    .metric { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: white; }
+    .metric strong { display: block; font-size: 24px; }
+    canvas { width: 100%; height: 180px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      .floor { grid-template-columns: repeat(2, minmax(120px, 1fr)); min-height: 0; }
+      .form-grid, .statusbar { grid-template-columns: 1fr; }
+      .topbar { align-items: stretch; flex-direction: column; }
+    }
+    @media (max-width: 460px) {
+      .shell { padding: 12px; }
+      .floor { grid-template-columns: 1fr; }
+      .menu-grid, .choice-row { grid-template-columns: 1fr; }
+      .qty { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">โต๊ะ</div>
+        <div>
+          <h1>ระบบจองโต๊ะร้านอาหาร</h1>
+          <p class="muted">จองโต๊ะภายในวันนี้ รอพนักงานยืนยัน แล้วจึงสั่งอาหารล่วงหน้าได้</p>
+        </div>
+      </div>
+      <nav class="tabs" aria-label="สลับหน้าจอ">
+        <button class="active" data-tab="customer">ลูกค้า</button>
+        <button class="secondary" data-tab="staff">พนักงาน</button>
+        <button class="secondary" data-tab="owner">เจ้าของร้าน</button>
+      </nav>
+    </header>
+
+    <section id="customer" class="section active">
+      <div id="customerNotice" class="notice"></div>
+      <div class="grid">
+        <div class="panel">
+          <h2>เลือกโต๊ะที่ต้องการ</h2>
+          <div id="customerFloor" class="floor" aria-label="ผังโต๊ะ"></div>
+        </div>
+        <div class="panel">
+          <h2>ส่งคำขอจอง</h2>
+          <form id="bookingForm" class="form-grid">
+            <label>ชื่อผู้จอง<input id="customerName" required placeholder="เช่น คุณสมชาย" /></label>
+            <label>เบอร์โทร<input id="customerPhone" required placeholder="08x-xxx-xxxx" /></label>
+            <label>จำนวนคน<input id="partySize" required type="number" min="1" max="12" value="2" /></label>
+            <label>เวลาที่ต้องการจอง
+              <span class="time-selects">
+                <select id="bookingHour" required></select>
+                <span class="colon">:</span>
+                <select id="bookingMinute" required></select>
+              </span>
+            </label>
+            <label class="full">โต๊ะที่เลือก<input id="selectedTableText" readonly placeholder="เลือกจากผังโต๊ะ" /></label>
+            <div class="full actions">
+              <button id="submitBooking" type="submit">ส่งคำขอจอง</button>
+              <button class="secondary" type="button" id="clearCustomer">ล้างข้อมูล</button>
+            </div>
+          </form>
+          <div id="customerResult" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="staff" class="section">
+      <div class="statusbar">
+        <div class="metric"><span class="muted">คำขอรอยืนยัน</span><strong id="pendingCount">0</strong></div>
+        <div class="metric"><span class="muted">จองสำเร็จ</span><strong id="confirmedCount">0</strong></div>
+        <div class="metric"><span class="muted">ยอดอาหารที่ชำระแล้ว</span><strong id="paidTotal">฿0</strong></div>
+        <div class="metric"><span class="muted">สถานะรับจอง</span><strong id="onlineStatus">เปิด</strong></div>
+      </div>
+      <div class="grid">
+        <div class="panel">
+          <div class="row">
+            <h2>ผังโต๊ะหน้าร้าน</h2>
+            <button id="toggleOnline" class="warn">ปิดรับจองออนไลน์</button>
+          </div>
+          <div id="staffFloor" class="floor"></div>
+        </div>
+        <div class="panel">
+          <h2>คำขอจองวันนี้</h2>
+          <div id="bookingList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="owner" class="section">
+      <div class="grid">
+        <div class="panel">
+          <h2>ตั้งค่าร้าน</h2>
+          <div class="form-grid">
+            <label>เวลาเปิดร้าน
+              <span class="time-selects">
+                <select id="openHour"></select>
+                <span class="colon">:</span>
+                <select id="openMinute"></select>
+              </span>
+            </label>
+            <label>เวลาปิดร้าน
+              <span class="time-selects">
+                <select id="closeHour"></select>
+                <span class="colon">:</span>
+                <select id="closeMinute"></select>
+              </span>
+            </label>
+            <div class="full actions">
+              <button id="saveSettings">บันทึกเวลา</button>
+              <button id="resetDemo" class="bad">รีเซ็ตข้อมูลตัวอย่าง</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>รายงานวันนี้</h2>
+          <canvas id="chart" width="620" height="220" aria-label="กราฟรายงาน"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const statusText = {
+      AVAILABLE: "ว่าง",
+      RESERVED: "จองแล้ว",
+      OCCUPIED: "มีลูกค้านั่ง",
+      DIRTY: "รอทำความสะอาด"
+    };
+    const bookingText = {
+      PENDING: "รอพนักงานยืนยัน",
+      CONFIRMED: "จองสำเร็จ",
+      REJECTED: "ปฏิเสธ",
+      CANCELLED: "ยกเลิก",
+      COMPLETED: "ใช้บริการเสร็จแล้ว"
+    };
+    const menu = [
+      { id: 1, name: "ข้าวราดกะเพรา" },
+      { id: 2, name: "ข้าวราดเครื่องแกง" },
+      { id: 3, name: "ข้าวราดคะน้า" },
+      { id: 4, name: "ข้าวราดผัดผงกะหรี่" }
+    ];
+    const proteins = [
+      { id: "pork_slices", name: "หมูชิ้น" },
+      { id: "crispy_pork", name: "หมูกรอบ" },
+      { id: "minced_pork", name: "หมูสับ" },
+      { id: "chicken", name: "ไก่" },
+      { id: "squid", name: "หมึก" },
+      { id: "shrimp", name: "กุ้ง" },
+      { id: "seafood", name: "ทะเล" },
+      { id: "mixed", name: "รวมมิตร" }
+    ];
+    const sizes = [
+      { id: "normal", name: "ธรรมดา", price: 40 },
+      { id: "special", name: "พิเศษ", price: 50 }
+    ];
+    const initialState = {
+      settings: { openTime: "10:00", closeTime: "21:00", onlineOpen: true },
+      selectedTable: null,
+      currentBookingId: null,
+      tables: [
+        { id: 1, number: "1", capacity: 2, status: "AVAILABLE" },
+        { id: 2, number: "2", capacity: 2, status: "AVAILABLE" },
+        { id: 3, number: "3", capacity: 6, status: "AVAILABLE" },
+        { id: 4, number: "4", capacity: 6, status: "AVAILABLE" },
+        { id: 5, number: "5", capacity: 2, status: "AVAILABLE" },
+        { id: 6, number: "6", capacity: 2, status: "AVAILABLE" }
+      ],
+      bookings: [],
+      orders: []
+    };
+
+    let savedState = JSON.parse(localStorage.getItem("thaiRestaurantBooking") || "null");
+    let state = savedState || initialState;
+    if (savedState && savedState.tables) {
+      state.tables.forEach(t => {
+        const initTable = initialState.tables.find(it => it.id === t.id);
+        if (initTable) t.capacity = initTable.capacity;
+      });
+    }
+
+    function save() {
+      localStorage.setItem("thaiRestaurantBooking", JSON.stringify(state));
+    }
+    function money(value) {
+      return "฿" + Number(value).toLocaleString("th-TH");
+    }
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+    function splitTime(value) {
+      const [hour, minute] = value.split(":");
+      return { hour, minute };
+    }
+    function joinTime(hourId, minuteId) {
+      return `${document.getElementById(hourId).value}:${document.getElementById(minuteId).value}`;
+    }
+    function populateTimeSelects() {
+      const hourOptions = Array.from({ length: 24 }, (_, hour) => `<option value="${pad(hour)}">${pad(hour)}</option>`).join("");
+      const minuteOptions = Array.from({ length: 60 }, (_, minute) => `<option value="${pad(minute)}">${pad(minute)}</option>`).join("");
+      ["bookingHour", "openHour", "closeHour"].forEach(id => document.getElementById(id).innerHTML = hourOptions);
+      ["bookingMinute", "openMinute", "closeMinute"].forEach(id => document.getElementById(id).innerHTML = minuteOptions);
+    }
+    function today() {
+      return new Date().toLocaleDateString("th-TH", { year: "numeric", month: "short", day: "numeric" });
+    }
+    function withinHours(time) {
+      return time >= state.settings.openTime && time < state.settings.closeTime;
+    }
+    function tableById(id) {
+      return state.tables.find(t => t.id === Number(id));
+    }
+    function renderFloor(target, mode) {
+      const root = document.getElementById(target);
+      root.innerHTML = "";
+      state.tables.forEach(table => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = `table-card ${table.status.toLowerCase()} ${mode === "customer" ? "pickable" : ""} ${state.selectedTable === table.id ? "selected" : ""}`;
+        card.innerHTML = `
+          <div class="table-model" aria-hidden="true">
+            <span class="chair top"></span>
+            <span class="chair left"></span>
+            <span class="table-surface"><span class="table-title">${table.number}</span></span>
+            <span class="chair right"></span>
+            <span class="chair bottom"></span>
+          </div>
+          <div>
+            <div><strong>โต๊ะ ${table.number}</strong></div>
+            <div class="muted">รองรับ ${table.capacity} คน</div>
+          </div>
+          <span class="badge">${statusText[table.status]}</span>
+        `;
+        if (mode === "customer") {
+          card.disabled = !state.settings.onlineOpen;
+          card.onclick = () => {
+            state.selectedTable = table.id;
+            document.getElementById("selectedTableText").value = `โต๊ะ ${table.number} (${table.capacity} คน)`;
+            render();
+          };
+        } else {
+          card.onclick = () => cycleTable(table.id);
+        }
+        root.appendChild(card);
+      });
+    }
+    function cycleTable(id) {
+      const order = ["AVAILABLE", "RESERVED", "OCCUPIED", "DIRTY"];
+      const table = tableById(id);
+      table.status = order[(order.indexOf(table.status) + 1) % order.length];
+      save();
+      render();
+    }
+    function renderCustomerNotice() {
+      const notice = document.getElementById("customerNotice");
+      if (state.settings.onlineOpen) {
+        notice.className = "notice";
+        notice.textContent = `วันนี้ร้านเปิด ${state.settings.openTime} - ${state.settings.closeTime} ลูกค้าส่งคำขอจองได้ และต้องรอพนักงานยืนยันก่อนสั่งอาหาร`;
+      } else {
+        notice.className = "notice closed";
+        notice.textContent = "ขณะนี้ร้านปิดรับจองออนไลน์ชั่วคราว เพราะหน้าร้านอาจแน่น กรุณาติดต่อร้านโดยตรง";
+      }
+    }
+    function renderBookings() {
+      const list = document.getElementById("bookingList");
+      if (!state.bookings.length) {
+        list.innerHTML = '<div class="item muted">ยังไม่มีคำขอจองวันนี้</div>';
+        return;
+      }
+      list.innerHTML = "";
+      state.bookings.slice().reverse().forEach(booking => {
+        const table = tableById(booking.tableId);
+        const item = document.createElement("div");
+        item.className = "item";
+        item.innerHTML = `
+          <div class="row">
+            <div>
+              <h3>${booking.name} · ${booking.phone}</h3>
+              <p class="muted">${today()} เวลา ${booking.time} · ${booking.partySize} คน · โต๊ะ ${table.number}</p>
+              <span class="badge">${bookingText[booking.status]}</span>
+            </div>
+            <div class="actions">
+              <button class="good" ${booking.status !== "PENDING" ? "disabled" : ""} data-confirm="${booking.id}">ยืนยัน</button>
+              <button class="bad" ${booking.status !== "PENDING" ? "disabled" : ""} data-reject="${booking.id}">ปฏิเสธ</button>
+              <button class="secondary" ${booking.status !== "CONFIRMED" ? "disabled" : ""} data-complete="${booking.id}">จบการใช้บริการ</button>
+            </div>
+          </div>
+          ${renderStaffOrderSummary(booking)}
+        `;
+        list.appendChild(item);
+      });
+      list.querySelectorAll("[data-confirm]").forEach(btn => btn.onclick = () => updateBooking(btn.dataset.confirm, "CONFIRMED"));
+      list.querySelectorAll("[data-reject]").forEach(btn => btn.onclick = () => updateBooking(btn.dataset.reject, "REJECTED"));
+      list.querySelectorAll("[data-complete]").forEach(btn => btn.onclick = () => updateBooking(btn.dataset.complete, "COMPLETED"));
+    }
+    function renderStaffOrderSummary(booking) {
+      const existing = state.orders.find(o => o.bookingId === booking.id && o.paid);
+      if (!existing) return "";
+      const names = existing.items.map(item => `${item.name} ${item.protein} ${item.sizeName} x${item.qty}`).join(", ");
+      return `<div class="notice" style="margin-top:10px">ลูกค้าชำระค่าอาหารแล้ว ${money(existing.total)} · ${names} · พร้อมส่งข้อมูลให้ POS</div>`;
+    }
+    function renderCustomerBooking() {
+      const box = document.getElementById("customerResult");
+      const booking = state.bookings.find(b => b.id === state.currentBookingId);
+      if (!booking) {
+        box.innerHTML = "";
+        return;
+      }
+      const table = tableById(booking.tableId);
+      if (booking.status === "PENDING") {
+        box.innerHTML = `<div class="notice">ร้านได้รับคำขอจองโต๊ะ ${table.number} เวลา ${booking.time} แล้ว กรุณารอพนักงานตรวจสอบโต๊ะว่างก่อน ระบบจะเปิดให้สั่งอาหารหลังจองสำเร็จ</div>`;
+        return;
+      }
+      if (booking.status === "REJECTED") {
+        box.innerHTML = `<div class="notice closed">ร้านไม่สามารถรับคำขอจองเวลา ${booking.time} ได้ในตอนนี้ ลูกค้ายังไม่มีการชำระเงินใด ๆ</div>`;
+        return;
+      }
+      if (booking.status === "COMPLETED") {
+        box.innerHTML = `<div class="notice">การใช้บริการรายการนี้เสร็จแล้ว ขอบคุณที่มาใช้บริการ</div>`;
+        return;
+      }
+      box.innerHTML = `
+        <div class="notice">จองสำเร็จแล้ว โต๊ะ ${table.number} เวลา ${booking.time} ตอนนี้ลูกค้าสามารถเลือกอาหารและชำระเงินล่วงหน้าได้</div>
+        ${renderOrderPanel(booking)}
+      `;
+      box.querySelectorAll("[data-pay]").forEach(btn => btn.onclick = () => submitOrder(btn.dataset.pay));
+      box.querySelectorAll("[data-confirm-payment]").forEach(btn => btn.onclick = () => confirmPayment(btn.dataset.confirmPayment));
+    }
+    function renderOrderPanel(booking) {
+      const existing = state.orders.find(o => o.bookingId === booking.id);
+      if (existing) {
+        const names = existing.items.map(item => `${item.name} ${item.protein} ${item.sizeName} x${item.qty}`).join(", ");
+        if (existing.paid) {
+          return `<div class="notice" style="margin-top:10px">ชำระค่าอาหารแล้ว ${money(existing.total)} · ${names}</div>`;
+        }
+        return `
+          <div class="qr-card">
+            <h3>สแกน QR เพื่อชำระค่าอาหาร</h3>
+            <img alt="QR ชำระเงิน ${money(existing.total)}" src="${buildQrUrl(existing.total, existing.id)}" />
+            <div><strong>ยอดชำระ ${money(existing.total)}</strong></div>
+            <div class="muted">${names}</div>
+            <button data-confirm-payment="${existing.id}">ยืนยันการชำระเงินจำลอง</button>
+          </div>`;
+      }
+      return `
+        <div class="menu" style="margin-top:10px">
+          <div class="notice">เลือกเมนูราดข้าว ราคาเดียวทุกเมนู: ธรรมดา ${money(40)} / พิเศษ ${money(50)}</div>
+          <div class="menu-grid">
+            ${menu.map(item => `
+              <div class="dish-card">
+                <h3>${item.name}</h3>
+                <div class="choice-row">
+                  <label>เนื้อสัตว์
+                    <select data-protein="${booking.id}-${item.id}">
+                      ${proteins.map(protein => `<option value="${protein.id}">${protein.name}</option>`).join("")}
+                    </select>
+                  </label>
+                  <label>ขนาด
+                    <select data-size="${booking.id}-${item.id}">
+                      ${sizes.map(size => `<option value="${size.id}">${size.name} · ${money(size.price)}</option>`).join("")}
+                    </select>
+                  </label>
+                </div>
+                <label>จำนวนจาน
+                  <input class="qty" min="0" max="9" value="0" type="number" data-qty="${booking.id}-${item.id}" />
+                </label>
+              </div>`).join("")}
+          </div>
+          <button data-pay="${booking.id}">สร้าง QR ชำระเงิน</button>
+        </div>`;
+    }
+    function buildQrUrl(total, ref) {
+      const payload = `ร้านอาหาร|ยอดชำระ=${Number(total).toFixed(2)}|อ้างอิง=${ref}`;
+      return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(payload)}`;
+    }
+    function updateBooking(id, status) {
+      const booking = state.bookings.find(b => b.id === id);
+      booking.status = status;
+      const table = tableById(booking.tableId);
+      if (status === "CONFIRMED") table.status = "RESERVED";
+      if (status === "REJECTED" || status === "COMPLETED") table.status = "AVAILABLE";
+      save();
+      render();
+    }
+    function submitOrder(bookingId) {
+      let total = 0;
+      const items = menu.map(item => {
+        const qty = Number(document.querySelector(`[data-qty="${bookingId}-${item.id}"]`).value || 0);
+        const proteinId = document.querySelector(`[data-protein="${bookingId}-${item.id}"]`).value;
+        const sizeId = document.querySelector(`[data-size="${bookingId}-${item.id}"]`).value;
+        const protein = proteins.find(option => option.id === proteinId);
+        const size = sizes.find(option => option.id === sizeId);
+        total += qty * size.price;
+        return { ...item, protein: protein.name, sizeName: size.name, price: size.price, qty };
+      }).filter(item => item.qty > 0);
+      if (!items.length) return alert("กรุณาเลือกอาหารอย่างน้อย 1 รายการ");
+      state.orders.push({ id: crypto.randomUUID(), bookingId, items, total, paid: false, posSynced: false });
+      save();
+      render();
+    }
+    function confirmPayment(orderId) {
+      const order = state.orders.find(o => o.id === orderId);
+      if (!order) return;
+      order.paid = true;
+      save();
+      render();
+    }
+    function renderMetrics() {
+      document.getElementById("pendingCount").textContent = state.bookings.filter(b => b.status === "PENDING").length;
+      document.getElementById("confirmedCount").textContent = state.bookings.filter(b => b.status === "CONFIRMED").length;
+      document.getElementById("paidTotal").textContent = money(state.orders.filter(o => o.paid).reduce((sum, o) => sum + o.total, 0));
+      document.getElementById("onlineStatus").textContent = state.settings.onlineOpen ? "เปิด" : "ปิด";
+      document.getElementById("toggleOnline").textContent = state.settings.onlineOpen ? "ปิดรับจองออนไลน์" : "เปิดรับจองออนไลน์";
+      document.getElementById("toggleOnline").className = state.settings.onlineOpen ? "warn" : "good";
+      const open = splitTime(state.settings.openTime);
+      const close = splitTime(state.settings.closeTime);
+      document.getElementById("openHour").value = open.hour;
+      document.getElementById("openMinute").value = open.minute;
+      document.getElementById("closeHour").value = close.hour;
+      document.getElementById("closeMinute").value = close.minute;
+    }
+    function drawChart() {
+      const canvas = document.getElementById("chart");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const labels = ["รอยืนยัน", "สำเร็จ", "ปฏิเสธ", "จบแล้ว"];
+      const values = [
+        state.bookings.filter(b => b.status === "PENDING").length,
+        state.bookings.filter(b => b.status === "CONFIRMED").length,
+        state.bookings.filter(b => b.status === "REJECTED").length,
+        state.bookings.filter(b => b.status === "COMPLETED").length
+      ];
+      const max = Math.max(1, ...values);
+      ctx.font = "18px Tahoma";
+      ctx.fillStyle = "#17211d";
+      ctx.fillText("สรุปสถานะการจองวันนี้", 22, 34);
+      values.forEach((value, index) => {
+        const x = 42 + index * 138;
+        const h = (value / max) * 118;
+        ctx.fillStyle = ["#b7791f", "#16794a", "#c2412f", "#2563a9"][index];
+        ctx.fillRect(x, 170 - h, 78, h);
+        ctx.fillStyle = "#17211d";
+        ctx.fillText(String(value), x + 30, 160 - h);
+        ctx.font = "14px Tahoma";
+        ctx.fillText(labels[index], x - 8, 198);
+        ctx.font = "18px Tahoma";
+      });
+    }
+    function render() {
+      renderCustomerNotice();
+      renderCustomerBooking();
+      renderFloor("customerFloor", "customer");
+      renderFloor("staffFloor", "staff");
+      renderBookings();
+      renderMetrics();
+      drawChart();
+      save();
+    }
+    document.querySelectorAll("[data-tab]").forEach(button => {
+      button.onclick = () => {
+        document.querySelectorAll("[data-tab]").forEach(b => { b.className = "secondary"; });
+        button.className = "active";
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        document.getElementById(button.dataset.tab).classList.add("active");
+        render();
+      };
+    });
+    document.getElementById("bookingForm").onsubmit = event => {
+      event.preventDefault();
+      if (!state.settings.onlineOpen) return alert("ขณะนี้ร้านปิดรับจองออนไลน์ชั่วคราว");
+      if (!state.selectedTable) return alert("กรุณาเลือกโต๊ะที่ต้องการ");
+      const time = joinTime("bookingHour", "bookingMinute");
+      if (!withinHours(time)) return alert(`กรุณาเลือกเวลาภายในช่วง ${state.settings.openTime} - ${state.settings.closeTime}`);
+      const booking = {
+        id: crypto.randomUUID(),
+        name: document.getElementById("customerName").value.trim(),
+        phone: document.getElementById("customerPhone").value.trim(),
+        partySize: Number(document.getElementById("partySize").value),
+        time,
+        tableId: state.selectedTable,
+        status: "PENDING"
+      };
+      state.bookings.push(booking);
+      state.currentBookingId = booking.id;
+      state.selectedTable = null;
+      event.target.reset();
+      document.getElementById("partySize").value = 2;
+      const open = splitTime(state.settings.openTime);
+      document.getElementById("bookingHour").value = open.hour;
+      document.getElementById("bookingMinute").value = open.minute;
+      save();
+      render();
+    };
+    document.getElementById("clearCustomer").onclick = () => {
+      state.selectedTable = null;
+      state.currentBookingId = null;
+      document.getElementById("bookingForm").reset();
+      document.getElementById("partySize").value = 2;
+      const open = splitTime(state.settings.openTime);
+      document.getElementById("bookingHour").value = open.hour;
+      document.getElementById("bookingMinute").value = open.minute;
+      document.getElementById("customerResult").innerHTML = "";
+      render();
+    };
+    document.getElementById("toggleOnline").onclick = () => {
+      state.settings.onlineOpen = !state.settings.onlineOpen;
+      save();
+      render();
+    };
+    document.getElementById("saveSettings").onclick = () => {
+      const openTime = joinTime("openHour", "openMinute");
+      const closeTime = joinTime("closeHour", "closeMinute");
+      if (openTime >= closeTime) return alert("เวลาปิดร้านต้องมากกว่าเวลาเปิดร้าน");
+      state.settings.openTime = openTime;
+      state.settings.closeTime = closeTime;
+      save();
+      render();
+      alert("บันทึกเวลาเปิด-ปิดร้านแล้ว");
+    };
+    document.getElementById("resetDemo").onclick = () => {
+      if (!confirm("ต้องการรีเซ็ตข้อมูลตัวอย่างทั้งหมดใช่ไหม")) return;
+      state = JSON.parse(JSON.stringify(initialState));
+      localStorage.removeItem("thaiRestaurantBooking");
+      render();
+    };
+    populateTimeSelects();
+    render();
+  </script>
+</body>
+</html>
