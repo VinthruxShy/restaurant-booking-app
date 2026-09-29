@@ -2,516 +2,498 @@
 <html lang="th">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ระบบจองโต๊ะร้านอาหาร</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #17211d;
-      --muted: #63706a;
-      --line: #dce4df;
-      --paper: #fbfcfa;
-      --panel: #ffffff;
-      --green: #16794a;
-      --red: #c2412f;
-      --amber: #b7791f;
-      --blue: #2563a9;
-      --soft-green: #e6f5ed;
-      --soft-red: #fde8e4;
-      --soft-amber: #fff4da;
-      --soft-blue: #e8f0fb;
-      --shadow: 0 16px 40px rgba(32, 44, 38, .10);
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบจองโต๊ะและสั่งอาหารออนไลน์ | Thai Gourmet Hub</title>
+  
+  <!-- Google Fonts: Prompt & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          }
+        }
+      }
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Tahoma, "Noto Sans Thai", Arial, sans-serif;
-      background: linear-gradient(180deg, #f3f7f4 0%, #fbfcfa 34%, #eef5f1 100%);
-      color: var(--ink);
-      min-height: 100vh;
-    }
-    button, input, select { font: inherit; }
-    button {
-      border: 0;
-      border-radius: 8px;
-      padding: 10px 14px;
-      background: var(--ink);
-      color: white;
-      cursor: pointer;
-      font-weight: 700;
-    }
-    button.secondary { background: #eef3ef; color: var(--ink); border: 1px solid var(--line); }
-    button.good { background: var(--green); }
-    button.bad { background: var(--red); }
-    button.warn { background: var(--amber); }
-    button:disabled { opacity: .48; cursor: not-allowed; }
-    input, select {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px 12px;
-      background: white;
-      color: var(--ink);
-    }
-    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 700; }
-    
-    /* Login Screen */
-    .auth-overlay {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 20px;
-    }
-    .auth-card {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(255,255,255,.96);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      padding: 28px 24px;
-      display: grid;
-      gap: 18px;
-    }
-    .auth-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .auth-presets {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .auth-presets button {
-      padding: 8px;
-      font-size: 12px;
-    }
-    .auth-error {
-      color: var(--red);
-      background: var(--soft-red);
-      border: 1px solid #f5c6bf;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 13px;
-      display: none;
-    }
+  </script>
 
-    /* Main App */
-    .shell { max-width: 1180px; margin: 0 auto; padding: 18px; }
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 0 18px;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .mark {
-      width: 42px; height: 42px; border-radius: 8px;
-      display: grid; place-items: center;
-      background: var(--ink); color: white; font-weight: 900;
-    }
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-      border: 1px solid var(--line);
-      padding: 6px 12px;
-      border-radius: 8px;
-    }
-    .user-info { font-size: 13px; }
-    .user-role-badge {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #eef3ef;
-      color: var(--ink);
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Chair visual aesthetics */
+    .chair-shadow {
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06), inset 0 1px 1px rgba(255,255,255,0.8);
     }
     
-    h1, h2, h3, p { margin-top: 0; }
-    h1 { font-size: clamp(24px, 4vw, 42px); margin-bottom: 4px; letter-spacing: 0; }
-    h2 { font-size: 22px; margin-bottom: 12px; }
-    h3 { font-size: 16px; margin-bottom: 8px; }
-    .muted { color: var(--muted); }
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tabs button.active { background: var(--green); }
-    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; align-items: start; }
-    .panel {
-      background: rgba(255,255,255,.92);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      padding: 16px;
+    /* Toast Animation */
+    @keyframes slideInRight {
+      from { transform: translateX(110%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
-    .section { display: none; }
-    .section.active { display: block; }
-    .floor {
-      min-height: 420px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background:
-        linear-gradient(90deg, rgba(23,33,29,.04) 1px, transparent 1px),
-        linear-gradient(rgba(23,33,29,.04) 1px, transparent 1px),
-        #f8faf8;
-      background-size: 34px 34px;
-      padding: 16px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(112px, 1fr));
-      gap: 14px;
-      position: relative;
-    }
-    .table-card {
-      min-height: 148px;
-      border: 2px solid var(--line);
-      border-radius: 8px;
-      background: white;
-      color: var(--ink);
-      padding: 12px;
-      display: grid;
-      align-content: space-between;
-      gap: 10px;
-      transition: transform .16s ease, border-color .16s ease;
-    }
-    .table-card.pickable:hover { transform: translateY(-2px); border-color: var(--green); }
-    .table-card.selected { outline: 4px solid rgba(22,121,74,.18); border-color: var(--green); }
-    .table-card.available { background: var(--soft-green); }
-    .table-card.reserved { background: var(--soft-blue); }
-    .table-card.occupied { background: var(--soft-red); }
-    .table-card.dirty { background: var(--soft-amber); }
-    .table-card .muted { color: #33423b; }
-    .table-title { font-size: 24px; font-weight: 900; color: #17211d; }
-    .table-model {
-      display: grid;
-      grid-template-columns: 18px 1fr 18px;
-      grid-template-rows: 18px 56px 18px;
-      gap: 5px;
-      align-items: center;
-      justify-items: center;
-      min-height: 102px;
-    }
-    .table-surface {
-      grid-column: 2;
-      grid-row: 2;
-      width: 100%;
-      max-width: 96px;
-      height: 56px;
-      border-radius: 14px;
-      border: 2px solid rgba(23,33,29,.32);
-      background: linear-gradient(145deg, #ffffff, rgba(255,255,255,.62));
-      box-shadow: inset 0 0 0 5px rgba(255,255,255,.45), 0 8px 18px rgba(23,33,29,.12);
-      display: grid;
-      place-items: center;
-    }
-    .chair {
-      width: 18px;
-      height: 18px;
-      border-radius: 6px;
-      background: rgba(23,33,29,.26);
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.35);
-    }
-    .chair.top { grid-column: 2; grid-row: 1; width: 50px; height: 14px; }
-    .chair.right { grid-column: 3; grid-row: 2; height: 42px; }
-    .chair.bottom { grid-column: 2; grid-row: 3; width: 50px; height: 14px; }
-    .chair.left { grid-column: 1; grid-row: 2; height: 42px; }
-    .badge {
-      display: inline-flex;
-      width: fit-content;
-      align-items: center;
-      border-radius: 999px;
-      padding: 5px 9px;
-      font-size: 12px;
-      font-weight: 800;
-      border: 1px solid rgba(0,0,0,.08);
-      background: white;
-      color: #17211d;
-    }
-    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .full { grid-column: 1 / -1; }
-    .notice {
-      border-radius: 8px;
-      padding: 12px;
-      background: var(--soft-blue);
-      color: #17365e;
-      border: 1px solid #c9dbf5;
-      margin-bottom: 12px;
-    }
-    .notice.closed { background: var(--soft-red); color: #7f2418; border-color: #f5c6bf; }
-    .list { display: grid; gap: 10px; }
-    .item {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      background: white;
-    }
-    .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .menu { display: grid; gap: 8px; }
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .dish-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      background: white;
-      display: grid;
-      gap: 10px;
-    }
-    .dish-card h3 { margin: 0; font-size: 17px; }
-    .choice-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      align-items: center;
-    }
-    .qty { width: 72px; }
-    .price-note { font-weight: 800; color: var(--green); white-space: nowrap; }
-    .time-selects {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 8px;
-      align-items: center;
-    }
-    .colon { font-weight: 900; color: var(--ink); }
-    .qr-card {
-      margin-top: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      background: #fff;
-      display: grid;
-      gap: 12px;
-      justify-items: center;
-      text-align: center;
-    }
-    .qr-card img {
-      width: 190px;
-      height: 190px;
-      border: 8px solid #fff;
-      box-shadow: 0 8px 24px rgba(23,33,29,.16);
-    }
-    .statusbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
-    .metric { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: white; }
-    .metric strong { display: block; font-size: 24px; }
-    canvas { width: 100%; height: 180px; border: 1px solid var(--line); border-radius: 8px; background: white; }
-    @media (max-width: 860px) {
-      .grid { grid-template-columns: 1fr; }
-      .floor { grid-template-columns: repeat(2, minmax(120px, 1fr)); min-height: 0; }
-      .form-grid, .statusbar { grid-template-columns: 1fr; }
-      .topbar { align-items: stretch; flex-direction: column; }
-    }
-    @media (max-width: 460px) {
-      .shell { padding: 12px; }
-      .floor { grid-template-columns: 1fr; }
-      .menu-grid, .choice-row { grid-template-columns: 1fr; }
-      .qty { width: 100%; }
+    .animate-toast {
+      animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen antialiased flex flex-col selection:bg-emerald-500 selection:text-white">
 
-  <!-- หน้าต่างเข้าสู่ระบบ -->
-  <div id="authScreen" class="auth-overlay">
-    <div class="auth-card">
-      <div class="auth-header">
-        <div class="mark">โต๊ะ</div>
-        <div>
-          <h2 style="margin: 0; font-size: 20px;">เข้าสู่ระบบ</h2>
-          <p class="muted" style="margin: 0; font-size: 13px;">ระบบจองโต๊ะร้านอาหาร</p>
-        </div>
-      </div>
-      <div id="authError" class="auth-error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
-      <form id="loginForm" style="display: grid; gap: 12px;">
-        <label>ชื่อผู้ใช้งาน
-          <input type="text" id="usernameInput" required placeholder="เช่น customer, staff หรือ owner" autocomplete="username" />
-        </label>
-        <label>รหัสผ่าน
-          <input type="password" id="passwordInput" required placeholder="••••" autocomplete="current-password" />
-        </label>
-        <button type="submit" class="good" style="margin-top: 6px;">เข้าสู่ระบบ</button>
-      </form>
+  <!-- Toast Notification Stack -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
-      <div style="border-top: 1px solid var(--line); padding-top: 14px;">
-        <span class="muted" style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">
-          ปุ่มลัดสำหรับทดสอบระบบ (รหัสผ่านคือ 123):
-        </span>
-        <div class="auth-presets">
-          <button type="button" class="secondary" data-preset="customer">ลูกค้า</button>
-          <button type="button" class="secondary" data-preset="staff">พนักงาน</button>
-          <button type="button" class="secondary" data-preset="owner">เจ้าของร้าน</button>
-        </div>
+  <!-- Custom Confirmation Modal (Replaces browser confirm) -->
+  <div id="confirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full mx-4 p-6 transform scale-95 transition-transform duration-200" id="confirmModalBox">
+      <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl font-bold mb-4">⚠️</div>
+      <h3 class="text-xl font-bold text-slate-800 mb-2" id="confirmTitle">ยืนยันการทำรายการ</h3>
+      <p class="text-slate-600 text-sm mb-6 leading-relaxed" id="confirmMessage">คุณแน่ใจหรือไม่ว่าต้องการดำเนินการนี้?</p>
+      <div class="flex gap-3 justify-end">
+        <button type="button" id="confirmCancelBtn" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-100 transition-colors text-sm">ยกเลิก</button>
+        <button type="button" id="confirmOkBtn" class="px-5 py-2.5 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 shadow-md shadow-rose-600/20 transition-all text-sm">ยืนยัน</button>
       </div>
     </div>
   </div>
 
-  <!-- หน้าจอแอปพลิเคชันหลัก -->
-  <main class="shell" id="appScreen" style="display: none;">
-    <header class="topbar">
-      <div class="brand">
-        <div class="mark">โต๊ะ</div>
-        <div>
-          <h1>ระบบจองโต๊ะร้านอาหาร</h1>
-          <p class="muted">จองโต๊ะภายในวันนี้ รอพนักงานยืนยัน แล้วจึงสั่งอาหารล่วงหน้าได้</p>
+  <!-- Login Screen -->
+  <section id="authScreen" class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-cover bg-center relative" 
+    style="background-image: linear-gradient(rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop&q=80');">
+    <div class="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 p-7 sm:p-9 space-y-6">
+      
+      <!-- Brand Logo -->
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-3xl font-black shadow-lg shadow-emerald-600/30">
+          โต๊ะ
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800">เข้าสู่ระบบร้านอาหาร</h2>
+        <p class="text-xs sm:text-sm text-slate-500">จองโต๊ะ สั่งอาหารล่วงหน้า และบริหารจัดการร้าน</p>
+      </div>
+
+      <!-- Error Alert Box -->
+      <div id="authErrorAlert" class="hidden rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs sm:text-sm text-rose-700 flex items-center gap-2.5">
+        <span class="text-base">❌</span>
+        <span id="authErrorText">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">ชื่อผู้ใช้งาน (Username)</label>
+          <input type="text" id="usernameInput" required placeholder="customer / staff / owner" autocomplete="username"
+            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 text-sm transition-all" />
+        </div>
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">รหัสผ่าน (Password)</label>
+          <input type="password" id="passwordInput" required placeholder="••••••••" autocomplete="current-password"
+            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 text-sm transition-all" />
+        </div>
+        <button type="submit" 
+          class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition-all hover:shadow-emerald-600/40 transform active:scale-[0.99]">
+          เข้าสู่ระบบ
+        </button>
+      </form>
+
+      <!-- Quick Preset Logins for Fast Testing (TC-001, TC-002, TC-003) -->
+      <div class="pt-4 border-t border-slate-100">
+        <p class="text-xs font-semibold text-slate-400 mb-2.5 text-center">ทดสอบด้วยบัญชีตัวอย่าง (รหัสผ่าน: 123)</p>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" data-preset="customer" class="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-slate-200 text-slate-700 text-xs font-medium transition-all text-center">
+            👤 ลูกค้า
+          </button>
+          <button type="button" data-preset="staff" class="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 border border-slate-200 text-slate-700 text-xs font-medium transition-all text-center">
+            👨‍🍳 พนักงาน
+          </button>
+          <button type="button" data-preset="owner" class="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 border border-slate-200 text-slate-700 text-xs font-medium transition-all text-center">
+            👑 เจ้าของร้าน
+          </button>
         </div>
       </div>
-      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <div class="user-profile">
-          <div class="user-info">
-            <span id="displayUserName" style="font-weight: 700;">ชื่อผู้ใช้</span>
-            <span id="displayUserRole" class="user-role-badge">บทบาท</span>
+
+    </div>
+  </section>
+
+  <!-- Main Application Container -->
+  <div id="appScreen" class="hidden flex-1 flex flex-col">
+    <!-- Navbar Header -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4 flex-wrap">
+        
+        <!-- Logo & Store Status Indicator -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-emerald-500/20">
+            โต๊ะ
           </div>
-          <button type="button" id="logoutBtn" class="secondary" style="padding: 6px 10px; font-size: 12px;">ออกจากระบบ</button>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-bold text-slate-800 leading-tight">บ้านรสไทย (Thai Gourmet)</h1>
+              <span id="navOnlineBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>ออนไลน์
+              </span>
+            </div>
+            <p class="text-xs text-slate-500">จองโต๊ะล่วงหน้ารอการยืนยัน และสั่งอาหารพร้อมชำระเงินผ่าน QR Code</p>
+          </div>
         </div>
-        <nav class="tabs" aria-label="สลับหน้าจอ">
-          <button class="active" data-tab="customer">ลูกค้า</button>
-          <button class="secondary" data-tab="staff">พนักงาน</button>
-          <button class="secondary" data-tab="owner">เจ้าของร้าน</button>
-        </nav>
+
+        <!-- Role Badges & Navigation Tabs & Logout -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <!-- User Profile Chip -->
+          <div class="flex items-center gap-2.5 bg-slate-100/90 py-1.5 px-3 rounded-full border border-slate-200 text-xs">
+            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]" id="userAvatarText">U</span>
+            <span id="displayUserName" class="font-bold text-slate-700">สมชาย</span>
+            <span id="displayUserRole" class="px-2 py-0.5 rounded-md font-semibold text-[11px] bg-white text-slate-600 shadow-2xs">ลูกค้า</span>
+          </div>
+
+          <!-- Section Tabs Navigation (Visible based on role) -->
+          <nav class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200" id="tabsNav">
+            <button type="button" data-tab="customer" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-xs">
+              🍽️ ลูกค้า
+            </button>
+            <button type="button" data-tab="staff" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+              📋 พนักงาน
+            </button>
+            <button type="button" data-tab="owner" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+              ⚙️ เจ้าของร้าน
+            </button>
+          </nav>
+
+          <!-- Logout Button -->
+          <button type="button" id="logoutBtn" class="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold transition-colors">
+            ออกจากระบบ
+          </button>
+        </div>
+
       </div>
     </header>
 
-    <section id="customer" class="section active">
-      <div id="customerNotice" class="notice"></div>
-      <div class="grid">
-        <div class="panel">
-          <h2>เลือกโต๊ะที่ต้องการ</h2>
-          <div id="customerFloor" class="floor" aria-label="ผังโต๊ะ"></div>
-        </div>
-        <div class="panel">
-          <h2>ส่งคำขอจอง</h2>
-          <form id="bookingForm" class="form-grid">
-            <label>ชื่อผู้จอง<input id="customerName" required placeholder="เช่น คุณสมชาย" /></label>
-            <label>เบอร์โทร<input id="customerPhone" required placeholder="08x-xxx-xxxx" /></label>
-            <label>จำนวนคน<input id="partySize" required type="number" min="1" max="12" value="2" /></label>
-            <label>เวลาที่ต้องการจอง
-              <span class="time-selects">
-                <select id="bookingHour" required></select>
-                <span class="colon">:</span>
-                <select id="bookingMinute" required></select>
-              </span>
-            </label>
-            <label class="full">โต๊ะที่เลือก<input id="selectedTableText" readonly placeholder="เลือกจากผังโต๊ะ" /></label>
-            <div class="full actions">
-              <button id="submitBooking" type="submit">ส่งคำขอจอง</button>
-              <button class="secondary" type="button" id="clearCustomer">ล้างข้อมูล</button>
-            </div>
-          </form>
-          <div id="customerResult" style="margin-top:14px"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="staff" class="section">
-      <div class="statusbar">
-        <div class="metric"><span class="muted">คำขอรอยืนยัน</span><strong id="pendingCount">0</strong></div>
-        <div class="metric"><span class="muted">จองสำเร็จ</span><strong id="confirmedCount">0</strong></div>
-        <div class="metric"><span class="muted">ยอดอาหารที่ชำระแล้ว</span><strong id="paidTotal">฿0</strong></div>
-        <div class="metric"><span class="muted">สถานะรับจอง</span><strong id="onlineStatus">เปิด</strong></div>
-      </div>
-      <div class="grid">
-        <div class="panel">
-          <div class="row">
-            <h2>ผังโต๊ะหน้าร้าน</h2>
-            <button id="toggleOnline" class="warn">ปิดรับจองออนไลน์</button>
-          </div>
-          <div id="staffFloor" class="floor"></div>
-        </div>
-        <div class="panel">
-          <h2>คำขอจองวันนี้</h2>
-          <div id="bookingList" class="list"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="owner" class="section">
-      <div class="grid">
-        <div class="panel">
-          <h2>ตั้งค่าร้าน</h2>
-          <div class="form-grid">
-            <label>เวลาเปิดร้าน
-              <span class="time-selects">
-                <select id="openHour"></select>
-                <span class="colon">:</span>
-                <select id="openMinute"></select>
-              </span>
-            </label>
-            <label>เวลาปิดร้าน
-              <span class="time-selects">
-                <select id="closeHour"></select>
-                <span class="colon">:</span>
-                <select id="closeMinute"></select>
-              </span>
-            </label>
-            <div class="full actions">
-              <button id="saveSettings">บันทึกเวลา</button>
-              <button id="resetDemo" class="bad">รีเซ็ตข้อมูลตัวอย่าง</button>
-            </div>
+    <!-- Content Section Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
+      
+      <!-- TAB 1: CUSTOMER VIEW -->
+      <section id="customerSection" class="tab-content block space-y-6">
+        
+        <!-- Operating Status Banner (TC-006, TC-008) -->
+        <div id="customerNoticeBanner" class="p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-emerald-50/90 border-emerald-200 text-emerald-900">
+          <div class="text-xl">🕒</div>
+          <div class="text-xs sm:text-sm leading-relaxed">
+            <strong class="font-bold">ข้อมูลการรับจอง:</strong> 
+            <span id="customerNoticeText">วันนี้ร้านเปิดรับจองเวลา 10:00 - 21:00 น. กรุณาเลือกโต๊ะที่ต้องการและรอพนักงานยืนยัน</span>
           </div>
         </div>
-        <div class="panel">
-          <h2>รายงานวันนี้</h2>
-          <canvas id="chart" width="620" height="220" aria-label="กราฟรายงาน"></canvas>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Left: Floor Plan with Interactive Tables (TC-004, TC-008) -->
+          <div class="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-bold text-slate-800">ผังโต๊ะอาหาร (Floor Plan)</h2>
+                <p class="text-xs text-slate-500">คลิกที่โต๊ะว่างเพื่อเลือกโต๊ะสำหรับการจอง</p>
+              </div>
+              <div class="flex items-center gap-2 text-xs flex-wrap">
+                <span class="inline-flex items-center gap-1.5 text-slate-600"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> ว่าง</span>
+                <span class="inline-flex items-center gap-1.5 text-slate-600"><span class="w-3 h-3 rounded-full bg-blue-500"></span> จองแล้ว</span>
+                <span class="inline-flex items-center gap-1.5 text-slate-600"><span class="w-3 h-3 rounded-full bg-rose-500"></span> ไม่ว่าง</span>
+              </div>
+            </div>
+
+            <!-- Floor Grid Container -->
+            <div id="customerFloorContainer" class="p-4 sm:p-6 rounded-2xl bg-slate-100/70 border border-slate-200/80 grid grid-cols-2 sm:grid-cols-3 gap-4 min-h-[420px]">
+              <!-- Generated Table Cards -->
+            </div>
+          </div>
+
+          <!-- Right: Booking Form & Active Order Box (TC-004, TC-005, TC-006, TC-007) -->
+          <div class="lg:col-span-5 space-y-6">
+            
+            <!-- Reservation Form Card -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                  <span>📝</span> ส่งคำขอจองโต๊ะ
+                </h2>
+                <span class="text-xs bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-full">จองได้วันนี้</span>
+              </div>
+
+              <form id="bookingForm" class="space-y-3.5">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อผู้จอง <span class="text-rose-500">*</span></label>
+                  <input type="text" id="customerName" required placeholder="เช่น คุณสมชาย บุญมี"
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">เบอร์ติดต่อ <span class="text-rose-500">*</span></label>
+                    <input type="tel" id="customerPhone" required placeholder="08x-xxx-xxxx"
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">จำนวนคน</label>
+                    <input type="number" id="partySize" min="1" max="12" value="2" required
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">เวลาที่ต้องการจอง <span class="text-rose-500">*</span></label>
+                  <div class="flex items-center gap-2">
+                    <select id="bookingHour" class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"></select>
+                    <span class="font-bold text-slate-400">:</span>
+                    <select id="bookingMinute" class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"></select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">โต๊ะที่เลือก</label>
+                  <input type="text" id="selectedTableText" readonly placeholder="👈 กรุณาคลิกเลือกโต๊ะจากผังด้านซ้าย"
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-700 text-sm font-semibold cursor-not-allowed" />
+                </div>
+
+                <div class="pt-2 flex gap-2.5">
+                  <button type="submit" id="submitBookingBtn"
+                    class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/25 transition-all">
+                    ส่งคำขอจอง
+                  </button>
+                  <button type="button" id="clearCustomerBtn"
+                    class="px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-sm font-semibold transition-all">
+                    ล้างฟอร์ม
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Customer Booking & Pre-order Status Card (TC-007, TC-009, TC-012, TC-013, TC-014) -->
+            <div id="customerResultBox">
+              <!-- Dynamically populated -->
+            </div>
+
+          </div>
+
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+
+      <!-- TAB 2: STAFF VIEW -->
+      <section id="staffSection" class="tab-content hidden space-y-6">
+        
+        <!-- Live KPI Metrics Statusbar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <span class="text-xs text-slate-500 font-medium">คำขอรอยืนยัน</span>
+            <div class="text-2xl font-black text-amber-600 mt-1" id="pendingCount">0</div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <span class="text-xs text-slate-500 font-medium">จองสำเร็จแล้ว</span>
+            <div class="text-2xl font-black text-emerald-600 mt-1" id="confirmedCount">0</div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <span class="text-xs text-slate-500 font-medium">ยอดอาหารที่ชำระแล้ว</span>
+            <div class="text-2xl font-black text-blue-600 mt-1" id="paidTotal">฿0</div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <span class="text-xs text-slate-500 font-medium">ระบบรับจองออนไลน์</span>
+            <div class="text-2xl font-black text-slate-800 mt-1 flex items-center gap-1.5" id="onlineStatusText">
+              <span>เปิดอยู่</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Staff Interactive Floor Plan (TC-011) -->
+          <div class="lg:col-span-6 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <h2 class="text-base font-bold text-slate-800">จัดการสถานะโต๊ะหน้าร้าน</h2>
+                <p class="text-xs text-slate-500">คลิกที่โต๊ะเพื่อเปลี่ยนสถานะ: ว่าง ➔ จอง ➔ นั่ง ➔ ทำความสะอาด</p>
+              </div>
+              <!-- Emergency Online Toggle (TC-008, TC-011) -->
+              <button type="button" id="toggleOnlineBtn" 
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-amber-500 hover:bg-amber-600 text-white shadow-xs">
+                ปิดรับจองออนไลน์
+              </button>
+            </div>
+
+            <!-- Staff Floor Grid -->
+            <div id="staffFloorContainer" class="p-4 sm:p-6 rounded-2xl bg-slate-100/70 border border-slate-200/80 grid grid-cols-2 sm:grid-cols-3 gap-4 min-h-[380px]">
+              <!-- Staff table cards -->
+            </div>
+          </div>
+
+          <!-- Staff Bookings List (TC-009, TC-010, TC-015) -->
+          <div class="lg:col-span-6 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 class="text-base font-bold text-slate-800">รายการคำขอจองวันนี้</h2>
+              <span class="text-xs text-slate-400 font-mono" id="todayDateStaff">วันนี้</span>
+            </div>
+            
+            <div id="bookingList" class="space-y-3 max-h-[560px] overflow-y-auto pr-1">
+              <!-- Bookings rendered here -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: OWNER VIEW -->
+      <section id="ownerSection" class="tab-content hidden space-y-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Store Operation Hours & Config (TC-016, TC-017) -->
+          <div class="lg:col-span-5 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+            <div class="border-b border-slate-100 pb-3">
+              <h2 class="text-base font-bold text-slate-800">⚙️ ตั้งค่าเวลาเปิด-ปิดร้าน</h2>
+              <p class="text-xs text-slate-500">กำหนดช่วงเวลาที่ลูกค้าสามารถส่งคำขอจองโต๊ะได้</p>
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">เวลาเปิดร้าน</label>
+                <div class="flex items-center gap-2">
+                  <select id="openHour" class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-mono"></select>
+                  <span class="font-bold text-slate-400">:</span>
+                  <select id="openMinute" class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-mono"></select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">เวลาปิดร้าน</label>
+                <div class="flex items-center gap-2">
+                  <select id="closeHour" class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-mono"></select>
+                  <span class="font-bold text-slate-400">:</span>
+                  <select id="closeMinute" class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-mono"></select>
+                </div>
+              </div>
+
+              <div class="pt-3 flex flex-col gap-2.5">
+                <button type="button" id="saveSettingsBtn"
+                  class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-sm shadow-md transition-all">
+                  💾 บันทึกเวลาเปิด-ปิดร้าน
+                </button>
+                <button type="button" id="resetDemoBtn"
+                  class="w-full py-2.5 px-4 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold transition-all">
+                  🔄 รีเซ็ตข้อมูลตัวอย่างทั้งหมด
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Chart Canvas (TC-017) -->
+          <div class="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h2 class="text-base font-bold text-slate-800">📊 รายงานสถิติคำขอจองวันนี้</h2>
+                <p class="text-xs text-slate-500">กราฟสรุปจำนวนตามสถานะคำขอจอง</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">อัปเดตเรียลไทม์</span>
+            </div>
+
+            <div class="relative w-full overflow-hidden flex items-center justify-center p-2 bg-slate-50 rounded-2xl border border-slate-100">
+              <canvas id="chartCanvas" width="600" height="260" class="max-w-full h-auto block"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
 
   <script>
-    // ฐานข้อมูลผู้ใช้งานในระบบ
+    /* System Users with predetermined credentials */
     const users = [
-      { username: "customer", password: "123", name: "คุณสมชาย", role: "customer", phone: "081-234-5678" },
+      { username: "customer", password: "123", name: "คุณสมชาย บุญมี", role: "customer", phone: "081-234-5678" },
       { username: "staff", password: "123", name: "พนักงานสมศรี", role: "staff" },
-      { username: "owner", password: "123", name: "ผู้จัดการร้าน", role: "owner" }
+      { username: "owner", password: "123", name: "คุณณภัทร (เจ้าของร้าน)", role: "owner" }
     ];
 
-    const roleNames = {
+    const roleLabels = {
       customer: "ลูกค้า",
       staff: "พนักงาน",
       owner: "เจ้าของร้าน"
     };
 
-    const statusText = {
-      AVAILABLE: "ว่าง",
-      RESERVED: "จองแล้ว",
-      OCCUPIED: "มีลูกค้านั่ง",
-      DIRTY: "รอทำความสะอาด"
+    const statusConfig = {
+      AVAILABLE: { label: "โต๊ะว่าง", badgeClass: "bg-emerald-100 text-emerald-800 border-emerald-200", cardBg: "bg-emerald-50/70 border-emerald-300" },
+      RESERVED: { label: "จองแล้ว", badgeClass: "bg-blue-100 text-blue-800 border-blue-200", cardBg: "bg-blue-50/70 border-blue-300" },
+      OCCUPIED: { label: "มีลูกค้านั่ง", badgeClass: "bg-rose-100 text-rose-800 border-rose-200", cardBg: "bg-rose-50/70 border-rose-300" },
+      DIRTY: { label: "รอทำความสะอาด", badgeClass: "bg-amber-100 text-amber-800 border-amber-200", cardBg: "bg-amber-50/70 border-amber-300" }
     };
-    const bookingText = {
-      PENDING: "รอพนักงานยืนยัน",
-      CONFIRMED: "จองสำเร็จ",
-      REJECTED: "ปฏิเสธ",
-      CANCELLED: "ยกเลิก",
-      COMPLETED: "ใช้บริการเสร็จแล้ว"
+
+    const bookingStatusConfig = {
+      PENDING: { label: "รอพนักงานยืนยัน", class: "bg-amber-100 text-amber-800 border-amber-200" },
+      CONFIRMED: { label: "จองสำเร็จ", class: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+      REJECTED: { label: "ปฏิเสธคำขอ", class: "bg-rose-100 text-rose-800 border-rose-200" },
+      COMPLETED: { label: "ใช้บริการเสร็จแล้ว", class: "bg-blue-100 text-blue-800 border-blue-200" }
     };
-    const menu = [
-      { id: 1, name: "ข้าวราดกะเพรา" },
-      { id: 2, name: "ข้าวราดเครื่องแกง" },
-      { id: 3, name: "ข้าวราดคะน้า" },
-      { id: 4, name: "ข้าวราดผัดผงกะหรี่" }
+
+    /* High Quality Food Menu with Real Food Photography */
+    const foodMenu = [
+      {
+        id: 1,
+        name: "ข้าวราดกะเพรา",
+        description: "ผัดกะเพราพริกแห้งโบราณ หอมกลิ่นกระทะ เสิร์ฟพร้อมข้าวสวยร้อนๆ",
+        image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+        id: 2,
+        name: "ข้าวราดพริกแกง",
+        description: "พริกแกงปักษ์ใต้เข้มข้น ผัดกับถั่วฝักยาวกรอบอร่อย จัดจ้านถึงเครื่อง",
+        image: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+        id: 3,
+        name: "ข้าวราดคะน้าหมูกรอบ",
+        description: "คะน้าฮ่องกงยอดอ่อนผัดไฟแดง รสชาติกลมกล่อม กรอบอร่อยลงตัว",
+        image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+        id: 4,
+        name: "ข้าวราดผัดผงกะหรี่",
+        description: "ผัดผงกะหรี่หอมละมุน ผัดไข่และคื่นช่ายนุ่มนวล กลมกล่อมเข้าเนื้อ",
+        image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80"
+      }
     ];
-    const proteins = [
-      { id: "pork_slices", name: "หมูชิ้น" },
+
+    const proteinOptions = [
       { id: "crispy_pork", name: "หมูกรอบ" },
       { id: "minced_pork", name: "หมูสับ" },
+      { id: "pork_slices", name: "หมูชิ้น" },
       { id: "chicken", name: "ไก่" },
-      { id: "squid", name: "หมึก" },
-      { id: "shrimp", name: "กุ้ง" },
-      { id: "seafood", name: "ทะเล" },
-      { id: "mixed", name: "รวมมิตร" }
+      { id: "squid", name: "หมึกสด" },
+      { id: "shrimp", name: "กุ้งสด" },
+      { id: "seafood", name: "ซีฟู้ดรวม" }
     ];
-    const sizes = [
+
+    const sizeOptions = [
       { id: "normal", name: "ธรรมดา", price: 40 },
       { id: "special", name: "พิเศษ", price: 50 }
     ];
+
+    /* Default Store Blueprint */
     const initialState = {
       currentUser: null,
+      activeTab: "customer",
       settings: { openTime: "10:00", closeTime: "21:00", onlineOpen: true },
       selectedTable: null,
       currentBookingId: null,
@@ -520,487 +502,858 @@
         { id: 2, number: "2", capacity: 2, status: "AVAILABLE" },
         { id: 3, number: "3", capacity: 6, status: "AVAILABLE" },
         { id: 4, number: "4", capacity: 6, status: "AVAILABLE" },
-        { id: 5, number: "5", capacity: 2, status: "AVAILABLE" },
-        { id: 6, number: "6", capacity: 2, status: "AVAILABLE" }
+        { id: 5, number: "5", capacity: 4, status: "AVAILABLE" },
+        { id: 6, number: "6", capacity: 4, status: "AVAILABLE" }
       ],
       bookings: [],
       orders: []
     };
 
-    let savedState = JSON.parse(localStorage.getItem("thaiRestaurantBooking") || "null");
-    let state = savedState || initialState;
-    if (savedState && savedState.tables) {
-      state.tables.forEach(t => {
-        const initTable = initialState.tables.find(it => it.id === t.id);
-        if (initTable) t.capacity = initTable.capacity;
-      });
+    let state = loadSavedState();
+
+    function loadSavedState() {
+      try {
+        const stored = localStorage.getItem("thaiGourmet_v2");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && Array.isArray(parsed.tables)) return parsed;
+        }
+      } catch (e) {
+        console.error("Failed to parse stored state:", e);
+      }
+      return JSON.parse(JSON.stringify(initialState));
     }
 
-    function save() {
-      localStorage.setItem("thaiRestaurantBooking", JSON.stringify(state));
+    function saveState() {
+      try {
+        localStorage.setItem("thaiGourmet_v2", JSON.stringify(state));
+      } catch (e) {
+        console.error("Storage error:", e);
+      }
     }
-    function money(value) {
-      return "฿" + Number(value).toLocaleString("th-TH");
+
+    function formatBaht(amount) {
+      return "฿" + Number(amount || 0).toLocaleString("th-TH");
     }
-    function pad(value) {
-      return String(value).padStart(2, "0");
+
+    function padZero(num) {
+      return String(num).padStart(2, "0");
     }
-    function splitTime(value) {
-      const [hour, minute] = value.split(":");
-      return { hour, minute };
-    }
-    function joinTime(hourId, minuteId) {
-      return `${document.getElementById(hourId).value}:${document.getElementById(minuteId).value}`;
-    }
-    function populateTimeSelects() {
-      const hourOptions = Array.from({ length: 24 }, (_, hour) => `<option value="${pad(hour)}">${pad(hour)}</option>`).join("");
-      const minuteOptions = Array.from({ length: 60 }, (_, minute) => `<option value="${pad(minute)}">${pad(minute)}</option>`).join("");
-      ["bookingHour", "openHour", "closeHour"].forEach(id => document.getElementById(id).innerHTML = hourOptions);
-      ["bookingMinute", "openMinute", "closeMinute"].forEach(id => document.getElementById(id).innerHTML = minuteOptions);
-    }
-    function today() {
+
+    function getTodayString() {
       return new Date().toLocaleDateString("th-TH", { year: "numeric", month: "short", day: "numeric" });
     }
-    function withinHours(time) {
-      return time >= state.settings.openTime && time < state.settings.closeTime;
+
+    /* Modern Toast Notifications (Replaces alert()) */
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      
+      const icons = {
+        success: "✅",
+        error: "❌",
+        warning: "⚠️",
+        info: "ℹ️"
+      };
+
+      const borderColors = {
+        success: "border-emerald-200 bg-emerald-50 text-emerald-900",
+        error: "border-rose-200 bg-rose-50 text-rose-900",
+        warning: "border-amber-200 bg-amber-50 text-amber-900",
+        info: "border-blue-200 bg-blue-50 text-blue-900"
+      };
+
+      toast.className = `pointer-events-auto p-4 rounded-2xl border shadow-xl flex items-center gap-3 text-sm animate-toast transition-all ${borderColors[type] || borderColors.info}`;
+      toast.innerHTML = `
+        <span class="text-lg">${icons[type] || "ℹ️"}</span>
+        <div class="flex-1 font-medium leading-snug">${message}</div>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => toast.remove(), 250);
+      }, 3500);
     }
-    function tableById(id) {
-      return state.tables.find(t => t.id === Number(id));
+
+    /* Modal Confirmation Dialog (Replaces confirm()) */
+    function showConfirmModal(title, message, onConfirm) {
+      const modal = document.getElementById("confirmModal");
+      const box = document.getElementById("confirmModalBox");
+      document.getElementById("confirmTitle").textContent = title;
+      document.getElementById("confirmMessage").textContent = message;
+
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      box.classList.remove("scale-95");
+      box.classList.add("scale-100");
+
+      const cleanup = () => {
+        modal.classList.add("opacity-0", "pointer-events-none");
+        box.classList.add("scale-95");
+        box.classList.remove("scale-100");
+        document.getElementById("confirmOkBtn").onclick = null;
+        document.getElementById("confirmCancelBtn").onclick = null;
+      };
+
+      document.getElementById("confirmCancelBtn").onclick = cleanup;
+      document.getElementById("confirmOkBtn").onclick = () => {
+        cleanup();
+        if (typeof onConfirm === "function") onConfirm();
+      };
     }
 
-    // --- จัดการเรื่อง Authentication & Roles ---
-    function updateAuthView() {
-      const authScreen = document.getElementById("authScreen");
-      const appScreen = document.getElementById("appScreen");
+    function populateTimeSelectors() {
+      const hoursHtml = Array.from({ length: 24 }, (_, i) => `<option value="${padZero(i)}">${padZero(i)}</option>`).join("");
+      const minutesHtml = Array.from({ length: 60 }, (_, i) => `<option value="${padZero(i)}">${padZero(i)}</option>`).join("");
 
-      if (!state.currentUser) {
-        authScreen.style.display = "grid";
-        appScreen.style.display = "none";
-        return;
-      }
-
-      authScreen.style.display = "none";
-      appScreen.style.display = "block";
-
-      document.getElementById("displayUserName").textContent = state.currentUser.name;
-      document.getElementById("displayUserRole").textContent = roleNames[state.currentUser.role] || state.currentUser.role;
-
-      // จัดการซ่อน-แสดงแท็บตามระดับสิทธิ์ของผู้ใช้งาน
-      const tabButtons = document.querySelectorAll("[data-tab]");
-      tabButtons.forEach(btn => {
-        const tab = btn.dataset.tab;
-        if (state.currentUser.role === "customer") {
-          btn.style.display = tab === "customer" ? "inline-block" : "none";
-        } else if (state.currentUser.role === "staff") {
-          // ซ่อนแท็บเจ้าของร้านสำหรับพนักงาน
-          btn.style.display = tab === "owner" ? "none" : "inline-block";
-        } else {
-          btn.style.display = "inline-block"; // เจ้าของร้านเห็นทุกแท็บ
-        }
+      ["bookingHour", "openHour", "closeHour"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = hoursHtml;
       });
 
-      // กรอกข้อมูลอัตโนมัติเมื่อเป็นลูกค้า
-      if (state.currentUser.role === "customer") {
-        const nameInput = document.getElementById("customerName");
-        const phoneInput = document.getElementById("customerPhone");
-        if (!nameInput.value && state.currentUser.name) nameInput.value = state.currentUser.name;
-        if (!phoneInput.value && state.currentUser.phone) phoneInput.value = state.currentUser.phone;
-      }
+      ["bookingMinute", "openMinute", "closeMinute"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = minutesHtml;
+      });
+
+      // Default setting values
+      const [oH, oM] = state.settings.openTime.split(":");
+      const [cH, cM] = state.settings.closeTime.split(":");
+      if (document.getElementById("openHour")) document.getElementById("openHour").value = oH;
+      if (document.getElementById("openMinute")) document.getElementById("openMinute").value = oM;
+      if (document.getElementById("closeHour")) document.getElementById("closeHour").value = cH;
+      if (document.getElementById("closeMinute")) document.getElementById("closeMinute").value = cM;
     }
 
     function login(username, password) {
-      const found = users.find(u => u.username === username.trim().toLowerCase() && u.password === password);
-      if (!found) {
-        document.getElementById("authError").style.display = "block";
+      const user = users.find(u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password);
+      const errorBox = document.getElementById("authErrorAlert");
+
+      if (!user) {
+        errorBox.classList.remove("hidden");
+        showToast("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", "error");
         return false;
       }
 
-      document.getElementById("authError").style.display = "none";
-      state.currentUser = { ...found };
-      
-      // กำหนดแท็บเริ่มต้นให้ตรงตามบทบาททันทีเมื่อล็อกอินสำเร็จ
-      let defaultTab = "customer";
-      if (found.role === "staff") defaultTab = "staff";
-      if (found.role === "owner") defaultTab = "owner";
+      errorBox.classList.add("hidden");
+      state.currentUser = { ...user };
 
-      switchTab(defaultTab);
-      save();
-      render();
+      // Set initial tab per role
+      if (user.role === "staff") state.activeTab = "staff";
+      else if (user.role === "owner") state.activeTab = "owner";
+      else state.activeTab = "customer";
+
+      saveState();
+      renderApp();
+      showToast(`ยินดีต้อนรับ ${user.name} (${roleLabels[user.role]})`, "success");
       return true;
     }
 
     function logout() {
       state.currentUser = null;
-      document.getElementById("loginForm").reset();
-      document.getElementById("authError").style.display = "none";
-      save();
-      updateAuthView();
+      state.selectedTable = null;
+      saveState();
+      renderApp();
+      showToast("ออกจากระบบเรียบร้อยแล้ว", "info");
     }
 
     function switchTab(tabId) {
-      if (!state.currentUser) return;
-
-      // ตรวจสอบสิทธิ์ป้องกันการเข้าถึงข้ามสิทธิ์ (Security Guard)
-      if (state.currentUser.role === "customer" && tabId !== "customer") return;
-      if (state.currentUser.role === "staff" && tabId === "owner") return;
-
-      document.querySelectorAll("[data-tab]").forEach(b => {
-        b.className = b.dataset.tab === tabId ? "active" : "secondary";
+      state.activeTab = tabId;
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        const isActive = btn.dataset.tab === tabId;
+        btn.className = `tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+          isActive 
+            ? 'bg-emerald-600 text-white shadow-xs' 
+            : 'text-slate-600 hover:text-slate-900'
+        }`;
       });
-      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-      const targetSection = document.getElementById(tabId);
-      if (targetSection) targetSection.classList.add("active");
+
+      document.querySelectorAll(".tab-content").forEach(section => {
+        section.classList.toggle("hidden", section.id !== `${tabId}Section`);
+      });
+
+      if (tabId === "owner") drawAnalyticsChart();
     }
 
-    function renderFloor(target, mode) {
-      const root = document.getElementById(target);
-      root.innerHTML = "";
+    function renderFloor(containerId, isStaffMode = false) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = "";
+
       state.tables.forEach(table => {
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = `table-card ${table.status.toLowerCase()} ${mode === "customer" ? "pickable" : ""} ${state.selectedTable === table.id ? "selected" : ""}`;
+        const card = document.createElement("div");
+        const status = statusConfig[table.status] || statusConfig.AVAILABLE;
+        const isSelected = state.selectedTable === table.id;
+        const isOnline = state.settings.onlineOpen;
+
+        card.className = `relative rounded-2xl border-2 p-3 flex flex-col justify-between items-center transition-all select-none ${status.cardBg} ${
+          isSelected ? 'ring-4 ring-emerald-500/40 border-emerald-600 shadow-md transform -translate-y-0.5' : ''
+        } ${
+          !isStaffMode && isOnline ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5' : ''
+        } ${
+          isStaffMode ? 'cursor-pointer hover:brightness-95' : ''
+        } ${
+          !isStaffMode && !isOnline ? 'opacity-60 cursor-not-allowed' : ''
+        }`;
+
+        // Top Chair Bar
+        let chairsTop = `<div class="flex gap-1 mb-1.5"><div class="w-8 h-2 rounded-full bg-slate-300 chair-shadow"></div></div>`;
+        let chairsBottom = `<div class="flex gap-1 mt-1.5"><div class="w-8 h-2 rounded-full bg-slate-300 chair-shadow"></div></div>`;
+        if (table.capacity >= 4) {
+          chairsTop = `<div class="flex gap-1.5 mb-1.5"><div class="w-6 h-2 rounded-full bg-slate-300 chair-shadow"></div><div class="w-6 h-2 rounded-full bg-slate-300 chair-shadow"></div></div>`;
+          chairsBottom = `<div class="flex gap-1.5 mt-1.5"><div class="w-6 h-2 rounded-full bg-slate-300 chair-shadow"></div><div class="w-6 h-2 rounded-full bg-slate-300 chair-shadow"></div></div>`;
+        }
+
         card.innerHTML = `
-          <div class="table-model" aria-hidden="true">
-            <span class="chair top"></span>
-            <span class="chair left"></span>
-            <span class="table-surface"><span class="table-title">${table.number}</span></span>
-            <span class="chair right"></span>
-            <span class="chair bottom"></span>
+          ${chairsTop}
+          <div class="w-full bg-white/95 rounded-xl border border-slate-200/90 py-3.5 px-2 flex flex-col items-center shadow-xs">
+            <span class="text-xs font-bold text-slate-400">โต๊ะ</span>
+            <span class="text-2xl font-black text-slate-800 my-0.5">${table.number}</span>
+            <span class="text-[11px] font-semibold text-slate-500">รองรับ ${table.capacity} คน</span>
           </div>
-          <div>
-            <div><strong>โต๊ะ ${table.number}</strong></div>
-            <div class="muted">รองรับ ${table.capacity} คน</div>
+          ${chairsBottom}
+          <div class="mt-2 w-full text-center">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${status.badgeClass}">
+              ${status.label}
+            </span>
           </div>
-          <span class="badge">${statusText[table.status]}</span>
         `;
-        if (mode === "customer") {
-          card.disabled = !state.settings.onlineOpen;
+
+        if (!isStaffMode) {
+          // Customer click to pick table (TC-004)
           card.onclick = () => {
+            if (!state.settings.onlineOpen) {
+              showToast("ขณะนี้ร้านปิดรับจองออนไลน์ชั่วคราว", "warning");
+              return;
+            }
+            if (table.status !== "AVAILABLE") {
+              showToast(`โต๊ะ ${table.number} อยู่ในสถานะ "${status.label}" ไม่สามารถเลือกได้`, "warning");
+              return;
+            }
             state.selectedTable = table.id;
-            document.getElementById("selectedTableText").value = `โต๊ะ ${table.number} (${table.capacity} คน)`;
-            render();
+            document.getElementById("selectedTableText").value = `โต๊ะ ${table.number} (${table.capacity} ที่นั่ง)`;
+            renderFloor("customerFloorContainer", false);
+            showToast(`เลือกโต๊ะ ${table.number} เรียบร้อยแล้ว`, "success");
           };
         } else {
-          card.onclick = () => cycleTable(table.id);
+          // Staff click to cycle status (TC-011)
+          card.onclick = () => cycleTableStatus(table.id);
         }
-        root.appendChild(card);
+
+        container.appendChild(card);
       });
     }
-    function cycleTable(id) {
+
+    function cycleTableStatus(tableId) {
       const order = ["AVAILABLE", "RESERVED", "OCCUPIED", "DIRTY"];
-      const table = tableById(id);
-      table.status = order[(order.indexOf(table.status) + 1) % order.length];
-      save();
-      render();
+      const table = state.tables.find(t => t.id === tableId);
+      if (!table) return;
+
+      const nextIndex = (order.indexOf(table.status) + 1) % order.length;
+      table.status = order[nextIndex];
+      saveState();
+      renderFloor("staffFloorContainer", true);
+      renderFloor("customerFloorContainer", false);
+      showToast(`เปลี่ยนสถานะโต๊ะ ${table.number} เป็น "${statusConfig[table.status].label}"`, "info");
     }
-    function renderCustomerNotice() {
-      const notice = document.getElementById("customerNotice");
-      if (state.settings.onlineOpen) {
-        notice.className = "notice";
-        notice.textContent = `วันนี้ร้านเปิด ${state.settings.openTime} - ${state.settings.closeTime} ลูกค้าส่งคำขอจองได้ และต้องรอพนักงานยืนยันก่อนสั่งอาหาร`;
-      } else {
-        notice.className = "notice closed";
-        notice.textContent = "ขณะนี้ร้านปิดรับจองออนไลน์ชั่วคราว เพราะหน้าร้านอาจแน่น กรุณาติดต่อร้านโดยตรง";
-      }
-    }
-    function renderBookings() {
-      const list = document.getElementById("bookingList");
-      if (!state.bookings.length) {
-        list.innerHTML = '<div class="item muted">ยังไม่มีคำขอจองวันนี้</div>';
-        return;
-      }
-      list.innerHTML = "";
-      state.bookings.slice().reverse().forEach(booking => {
-        const table = tableById(booking.tableId);
-        const item = document.createElement("div");
-        item.className = "item";
-        item.innerHTML = `
-          <div class="row">
-            <div>
-              <h3>${booking.name} · ${booking.phone}</h3>
-              <p class="muted">${today()} เวลา ${booking.time} · ${booking.partySize} คน · โต๊ะ ${table.number}</p>
-              <span class="badge">${bookingText[booking.status]}</span>
-            </div>
-            <div class="actions">
-              <button class="good" ${booking.status !== "PENDING" ? "disabled" : ""} data-confirm="${booking.id}">ยืนยัน</button>
-              <button class="bad" ${booking.status !== "PENDING" ? "disabled" : ""} data-reject="${booking.id}">ปฏิเสธ</button>
-              <button class="secondary" ${booking.status !== "CONFIRMED" ? "disabled" : ""} data-complete="${booking.id}">จบการใช้บริการ</button>
-            </div>
-          </div>
-          ${renderStaffOrderSummary(booking)}
-        `;
-        list.appendChild(item);
-      });
-      list.querySelectorAll("[data-confirm]").forEach(btn => btn.onclick = () => updateBooking(btn.dataset.confirm, "CONFIRMED"));
-      list.querySelectorAll("[data-reject]").forEach(btn => btn.onclick = () => updateBooking(btn.dataset.reject, "REJECTED"));
-      list.querySelectorAll("[data-complete]").forEach(btn => btn.onclick = () => updateBooking(btn.dataset.complete, "COMPLETED"));
-    }
-    function renderStaffOrderSummary(booking) {
-      const existing = state.orders.find(o => o.bookingId === booking.id && o.paid);
-      if (!existing) return "";
-      const names = existing.items.map(item => `${item.name} ${item.protein} ${item.sizeName} x${item.qty}`).join(", ");
-      return `<div class="notice" style="margin-top:10px">ลูกค้าชำระค่าอาหารแล้ว ${money(existing.total)} · ${names} · พร้อมส่งข้อมูลให้ POS</div>`;
-    }
-    function renderCustomerBooking() {
-      const box = document.getElementById("customerResult");
+
+    function renderCustomerResult() {
+      const box = document.getElementById("customerResultBox");
+      if (!box) return;
+
       const booking = state.bookings.find(b => b.id === state.currentBookingId);
       if (!booking) {
         box.innerHTML = "";
         return;
       }
-      const table = tableById(booking.tableId);
+
+      const table = state.tables.find(t => t.id === booking.tableId) || { number: "?" };
+      const statusBadge = bookingStatusConfig[booking.status] || { label: booking.status, class: "bg-slate-100 text-slate-700" };
+
+      // Case 1: Pending (TC-007)
       if (booking.status === "PENDING") {
-        box.innerHTML = `<div class="notice">ร้านได้รับคำขอจองโต๊ะ ${table.number} เวลา ${booking.time} แล้ว กรุณารอพนักงานตรวจสอบโต๊ะว่างก่อน ระบบจะเปิดให้สั่งอาหารหลังจองสำเร็จ</div>`;
-        return;
-      }
-      if (booking.status === "REJECTED") {
-        box.innerHTML = `<div class="notice closed">ร้านไม่สามารถรับคำขอจองเวลา ${booking.time} ได้ในตอนนี้ ลูกค้ายังไม่มีการชำระเงินใด ๆ</div>`;
-        return;
-      }
-      if (booking.status === "COMPLETED") {
-        box.innerHTML = `<div class="notice">การใช้บริการรายการนี้เสร็จแล้ว ขอบคุณที่มาใช้บริการ</div>`;
-        return;
-      }
-      box.innerHTML = `
-        <div class="notice">จองสำเร็จแล้ว โต๊ะ ${table.number} เวลา ${booking.time} ตอนนี้ลูกค้าสามารถเลือกอาหารและชำระเงินล่วงหน้าได้</div>
-        ${renderOrderPanel(booking)}
-      `;
-      box.querySelectorAll("[data-pay]").forEach(btn => btn.onclick = () => submitOrder(btn.dataset.pay));
-      box.querySelectorAll("[data-confirm-payment]").forEach(btn => btn.onclick = () => confirmPayment(btn.dataset.confirmPayment));
-    }
-    function renderOrderPanel(booking) {
-      const existing = state.orders.find(o => o.bookingId === booking.id);
-      if (existing) {
-        const names = existing.items.map(item => `${item.name} ${item.protein} ${item.sizeName} x${item.qty}`).join(", ");
-        if (existing.paid) {
-          return `<div class="notice" style="margin-top:10px">ชำระค่าอาหารแล้ว ${money(existing.total)} · ${names}</div>`;
-        }
-        return `
-          <div class="qr-card">
-            <h3>สแกน QR เพื่อชำระค่าอาหาร</h3>
-            <img alt="QR ชำระเงิน ${money(existing.total)}" src="${buildQrUrl(existing.total, existing.id)}" />
-            <div><strong>ยอดชำระ ${money(existing.total)}</strong></div>
-            <div class="muted">${names}</div>
-            <button data-confirm-payment="${existing.id}">ยืนยันการชำระเงินจำลอง</button>
-          </div>`;
-      }
-      return `
-        <div class="menu" style="margin-top:10px">
-          <div class="notice">เลือกเมนูราดข้าว ราคาเดียวทุกเมนู: ธรรมดา ${money(40)} / พิเศษ ${money(50)}</div>
-          <div class="menu-grid">
-            ${menu.map(item => `
-              <div class="dish-card">
-                <h3>${item.name}</h3>
-                <div class="choice-row">
-                  <label>เนื้อสัตว์
-                    <select data-protein="${booking.id}-${item.id}">
-                      ${proteins.map(protein => `<option value="${protein.id}">${protein.name}</option>`).join("")}
-                    </select>
-                  </label>
-                  <label>ขนาด
-                    <select data-size="${booking.id}-${item.id}">
-                      ${sizes.map(size => `<option value="${size.id}">${size.name} · ${money(size.price)}</option>`).join("")}
-                    </select>
-                  </label>
-                </div>
-                <label>จำนวนจาน
-                  <input class="qty" min="0" max="9" value="0" type="number" data-qty="${booking.id}-${item.id}" />
-                </label>
-              </div>`).join("")}
+        box.innerHTML = `
+          <div class="bg-amber-50 rounded-3xl border border-amber-200 p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-800">สถานะคำขอจองล่าสุด</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${statusBadge.class}">${statusBadge.label}</span>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-base font-bold text-slate-800">ได้รับคำขอจองโต๊ะ ${table.number} แล้ว</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                เวลาที่ขอจอง: <strong class="text-slate-800">${booking.time} น.</strong> (${booking.partySize} คน)<br>
+                กรุณารอพนักงานตรวจสอบและกดยืนยันโต๊ะ เมื่อยืนยันแล้วจะสามารถสั่งอาหารล่วงหน้าได้ทันทีครับ
+              </p>
+            </div>
           </div>
-          <button data-pay="${booking.id}">สร้าง QR ชำระเงิน</button>
-        </div>`;
+        `;
+        return;
+      }
+
+      // Case 2: Rejected (TC-010)
+      if (booking.status === "REJECTED") {
+        box.innerHTML = `
+          <div class="bg-rose-50 rounded-3xl border border-rose-200 p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-800">คำขอจองถูกปฏิเสธ</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${statusBadge.class}">${statusBadge.label}</span>
+            </div>
+            <p class="text-xs text-rose-700 leading-relaxed">
+              ขออภัย ทางร้านไม่สามารถรับคำขอจองโต๊ะ ${table.number} เวลา ${booking.time} น. ได้ในขณะนี้ ยังไม่มีการเรียกเก็บค่าใช้จ่ายใดๆ ครับ
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      // Case 3: Completed (TC-015)
+      if (booking.status === "COMPLETED") {
+        box.innerHTML = `
+          <div class="bg-blue-50 rounded-3xl border border-blue-200 p-5 text-center space-y-2">
+            <div class="text-3xl">🎉</div>
+            <h3 class="text-base font-bold text-slate-800">การใช้บริการเสร็จสมบูรณ์</h3>
+            <p class="text-xs text-slate-600">ขอบพระคุณที่มาอุดหนุนร้านบ้านรสไทย โอกาสหน้ายินดีต้อนรับใหม่ครับ</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Case 4: Confirmed -> Ordering Available (TC-009, TC-012, TC-013, TC-014)
+      const existingOrder = state.orders.find(o => o.bookingId === booking.id);
+
+      // If already paid
+      if (existingOrder && existingOrder.paid) {
+        const itemNames = existingOrder.items.map(i => `${i.name} (${i.protein}, ${i.sizeName}) x${i.qty}`).join(" • ");
+        box.innerHTML = `
+          <div class="bg-emerald-50 rounded-3xl border border-emerald-200 p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-800">ชำระค่าอาหารล่วงหน้าแล้ว</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-200 text-emerald-900">ชำระแล้ว</span>
+            </div>
+            <div class="text-xs text-slate-700 space-y-1">
+              <div><strong>โต๊ะ ${table.number}</strong> เวลา <strong>${booking.time} น.</strong></div>
+              <div>ยอดชำระ: <strong class="text-emerald-700 font-bold">${formatBaht(existingOrder.total)}</strong></div>
+              <div class="text-slate-500 pt-1">${itemNames}</div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // If order submitted, waiting for payment simulation
+      if (existingOrder && !existingOrder.paid) {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(`PromptPay|THAI-GOURMET|AMOUNT=${existingOrder.total}|REF=${existingOrder.id}`)}`;
+        box.innerHTML = `
+          <div class="bg-white rounded-3xl border-2 border-emerald-500/40 p-5 shadow-lg space-y-4 text-center">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 class="text-sm font-bold text-slate-800">สแกน QR เพื่อชำระเงิน</h3>
+              <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">จองสำเร็จ</span>
+            </div>
+            <div class="inline-block p-2 rounded-2xl bg-white border border-slate-200 shadow-inner">
+              <img src="${qrUrl}" alt="QR Payment" class="w-48 h-48 mx-auto rounded-xl" onerror="this.src='https://placehold.co/220x220/1e293b/ffffff?text=QR+Code'"/>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500">ยอดที่ต้องชำระ</div>
+              <div class="text-2xl font-black text-emerald-600">${formatBaht(existingOrder.total)}</div>
+              <div class="text-xs text-slate-500 mt-1">อ้างอิงรหัส: ${existingOrder.id.slice(0, 8)}</div>
+            </div>
+            <button type="button" onclick="confirmPayment('${existingOrder.id}')"
+              class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm shadow-md transition-all">
+              ⚡ ยืนยันการชำระเงินจำลอง (TC-014)
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      // Confirmed, show menu pre-order selector (TC-012, TC-013)
+      box.innerHTML = `
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h3 class="text-base font-bold text-slate-800">🍜 สั่งอาหารล่วงหน้า (โต๊ะ ${table.number})</h3>
+              <p class="text-xs text-slate-500">อาหารจานเดียวปรุงสด ราคาเดียว: ธรรมดา 40฿ / พิเศษ 50฿</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">จองสำเร็จ</span>
+          </div>
+
+          <div class="space-y-3.5">
+            ${foodMenu.map(dish => `
+              <div class="flex flex-col sm:flex-row gap-3.5 p-3 rounded-2xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition-all">
+                <img src="${dish.image}" alt="${dish.name}" class="w-full sm:w-24 h-24 object-cover rounded-xl border border-slate-200" 
+                  onerror="this.src='https://placehold.co/200x200/1e293b/ffffff?text=Food'" />
+                <div class="flex-1 flex flex-col justify-between space-y-2">
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-800">${dish.name}</h4>
+                    <p class="text-xs text-slate-500 line-clamp-1">${dish.description}</p>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 items-center">
+                    <div>
+                      <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">เนื้อสัตว์</label>
+                      <select id="protein_${dish.id}" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-xs bg-white">
+                        ${proteinOptions.map(p => `<option value="${p.id}">${p.name}</option>`).join("")}
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">ขนาด</label>
+                      <select id="size_${dish.id}" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-xs bg-white">
+                        ${sizeOptions.map(s => `<option value="${s.id}">${s.name} (${s.price}฿)</option>`).join("")}
+                      </select>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                      <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">จำนวนจาน</label>
+                      <input type="number" id="qty_${dish.id}" min="0" max="10" value="0"
+                        class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs text-center font-bold bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+
+          <button type="button" onclick="submitPreOrder('${booking.id}')"
+            class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all">
+            💳 สรุปรายการและสร้าง QR ชำระเงิน (TC-013)
+          </button>
+        </div>
+      `;
     }
-    function buildQrUrl(total, ref) {
-      const payload = `ร้านอาหาร|ยอดชำระ=${Number(total).toFixed(2)}|อ้างอิง=${ref}`;
-      return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(payload)}`;
+
+    function submitPreOrder(bookingId) {
+      let totalAmount = 0;
+      const orderItems = [];
+
+      foodMenu.forEach(dish => {
+        const qtyEl = document.getElementById(`qty_${dish.id}`);
+        const proteinEl = document.getElementById(`protein_${dish.id}`);
+        const sizeEl = document.getElementById(`size_${dish.id}`);
+
+        const qty = Number(qtyEl ? qtyEl.value : 0);
+        if (qty > 0) {
+          const sizeObj = sizeOptions.find(s => s.id === sizeEl.value) || sizeOptions[0];
+          const proteinObj = proteinOptions.find(p => p.id === proteinEl.value) || proteinOptions[0];
+          const itemTotal = sizeObj.price * qty;
+
+          totalAmount += itemTotal;
+          orderItems.push({
+            dishId: dish.id,
+            name: dish.name,
+            protein: proteinObj.name,
+            sizeName: sizeObj.name,
+            unitPrice: sizeObj.price,
+            qty,
+            subtotal: itemTotal
+          });
+        }
+      });
+
+      // TC-012: Alert if no food selected
+      if (orderItems.length === 0) {
+        showToast("กรุณาเลือกจำนวนอาหารอย่างน้อย 1 รายการก่อนสร้าง QR", "warning");
+        return;
+      }
+
+      // TC-013: Valid order creation
+      const newOrder = {
+        id: "ORD-" + Math.floor(100000 + Math.random() * 900000),
+        bookingId,
+        items: orderItems,
+        total: totalAmount,
+        paid: false,
+        createdAt: new Date().toISOString()
+      };
+
+      state.orders.push(newOrder);
+      saveState();
+      renderApp();
+      showToast(`สร้าง QR ชำระเงินสำเร็จ ยอดรวม ${formatBaht(totalAmount)}`, "success");
     }
-    function updateBooking(id, status) {
-      const booking = state.bookings.find(b => b.id === id);
-      booking.status = status;
-      const table = tableById(booking.tableId);
-      if (status === "CONFIRMED") table.status = "RESERVED";
-      if (status === "REJECTED" || status === "COMPLETED") table.status = "AVAILABLE";
-      save();
-      render();
-    }
-    function submitOrder(bookingId) {
-      let total = 0;
-      const items = menu.map(item => {
-        const qty = Number(document.querySelector(`[data-qty="${bookingId}-${item.id}"]`).value || 0);
-        const proteinId = document.querySelector(`[data-protein="${bookingId}-${item.id}"]`).value;
-        const sizeId = document.querySelector(`[data-size="${bookingId}-${item.id}"]`).value;
-        const protein = proteins.find(option => option.id === proteinId);
-        const size = sizes.find(option => option.id === sizeId);
-        total += qty * size.price;
-        return { ...item, protein: protein.name, sizeName: size.name, price: size.price, qty };
-      }).filter(item => item.qty > 0);
-      if (!items.length) return alert("กรุณาเลือกอาหารอย่างน้อย 1 รายการ");
-      state.orders.push({ id: crypto.randomUUID(), bookingId, items, total, paid: false, posSynced: false });
-      save();
-      render();
-    }
+
     function confirmPayment(orderId) {
       const order = state.orders.find(o => o.id === orderId);
       if (!order) return;
+
+      // TC-014: Simulate payment success
       order.paid = true;
-      save();
-      render();
+      saveState();
+      renderApp();
+      showToast(`ชำระเงินจำลอง ${formatBaht(order.total)} สำเร็จแล้ว!`, "success");
     }
-    function renderMetrics() {
-      document.getElementById("pendingCount").textContent = state.bookings.filter(b => b.status === "PENDING").length;
-      document.getElementById("confirmedCount").textContent = state.bookings.filter(b => b.status === "CONFIRMED").length;
-      document.getElementById("paidTotal").textContent = money(state.orders.filter(o => o.paid).reduce((sum, o) => sum + o.total, 0));
-      document.getElementById("onlineStatus").textContent = state.settings.onlineOpen ? "เปิด" : "ปิด";
-      document.getElementById("toggleOnline").textContent = state.settings.onlineOpen ? "ปิดรับจองออนไลน์" : "เปิดรับจองออนไลน์";
-      document.getElementById("toggleOnline").className = state.settings.onlineOpen ? "warn" : "good";
-      const open = splitTime(state.settings.openTime);
-      const close = splitTime(state.settings.closeTime);
-      document.getElementById("openHour").value = open.hour;
-      document.getElementById("openMinute").value = open.minute;
-      document.getElementById("closeHour").value = close.hour;
-      document.getElementById("closeMinute").value = close.minute;
+
+    function renderBookingsList() {
+      const listEl = document.getElementById("bookingList");
+      if (!listEl) return;
+
+      if (!state.bookings || state.bookings.length === 0) {
+        listEl.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">ยังไม่มีคำขอจองโต๊ะในระบบ</div>`;
+        return;
+      }
+
+      listEl.innerHTML = "";
+      state.bookings.slice().reverse().forEach(b => {
+        const table = state.tables.find(t => t.id === b.tableId) || { number: "?" };
+        const status = bookingStatusConfig[b.status] || { label: b.status, class: "bg-slate-100 text-slate-700" };
+        const order = state.orders.find(o => o.bookingId === b.id && o.paid);
+
+        const card = document.createElement("div");
+        card.className = "p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all space-y-3";
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-slate-800 text-sm">${b.name}</h3>
+                <span class="text-xs text-slate-500 font-mono">${b.phone}</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">
+                เวลา <strong>${b.time} น.</strong> • จำนวน <strong>${b.partySize} คน</strong> • <strong>โต๊ะ ${table.number}</strong>
+              </p>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${status.class}">${status.label}</span>
+          </div>
+
+          ${order ? `
+            <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-900 flex items-center justify-between">
+              <span>🍗 ชำระค่าอาหารล่วงหน้าแล้ว: <strong>${order.items.map(i => `${i.name} x${i.qty}`).join(", ")}</strong></span>
+              <strong class="text-emerald-700 ml-2 font-bold">${formatBaht(order.total)}</strong>
+            </div>
+          ` : ''}
+
+          <div class="flex items-center gap-2 pt-1 border-t border-slate-100 flex-wrap">
+            <button type="button" onclick="updateBookingStatus('${b.id}', 'CONFIRMED')" ${b.status !== "PENDING" ? "disabled" : ""}
+              class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs font-bold transition-all">
+              ✓ ยืนยัน (TC-009)
+            </button>
+            <button type="button" onclick="updateBookingStatus('${b.id}', 'REJECTED')" ${b.status !== "PENDING" ? "disabled" : ""}
+              class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs font-bold transition-all">
+              ✕ ปฏิเสธ (TC-010)
+            </button>
+            <button type="button" onclick="updateBookingStatus('${b.id}', 'COMPLETED')" ${b.status !== "CONFIRMED" ? "disabled" : ""}
+              class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed text-slate-700 text-xs font-bold transition-all ml-auto">
+              ✓ จบการบริการ (TC-015)
+            </button>
+          </div>
+        `;
+
+        listEl.appendChild(card);
+      });
     }
-    function drawChart() {
-      const canvas = document.getElementById("chart");
+
+    function updateBookingStatus(bookingId, newStatus) {
+      const booking = state.bookings.find(b => b.id === bookingId);
+      if (!booking) return;
+
+      booking.status = newStatus;
+      const table = state.tables.find(t => t.id === booking.tableId);
+
+      // Status reflection rules
+      if (newStatus === "CONFIRMED") {
+        if (table) table.status = "RESERVED";
+        showToast(`ยืนยันการจองโต๊ะ ${table ? table.number : ''} เรียบร้อยแล้ว`, "success");
+      } else if (newStatus === "REJECTED") {
+        if (table) table.status = "AVAILABLE";
+        showToast("ปฏิเสธคำขอจองเรียบร้อยแล้ว", "info");
+      } else if (newStatus === "COMPLETED") {
+        if (table) table.status = "AVAILABLE";
+        showToast(`จบการใช้บริการโต๊ะ ${table ? table.number : ''} สำเร็จ โต๊ะว่างแล้ว`, "success");
+      }
+
+      saveState();
+      renderApp();
+    }
+
+    function drawAnalyticsChart() {
+      const canvas = document.getElementById("chartCanvas");
+      if (!canvas) return;
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const labels = ["รอยืนยัน", "สำเร็จ", "ปฏิเสธ", "จบแล้ว"];
-      const values = [
+
+      const labels = ["รอยืนยัน", "จองสำเร็จ", "ปฏิเสธ", "จบการบริการ"];
+      const counts = [
         state.bookings.filter(b => b.status === "PENDING").length,
         state.bookings.filter(b => b.status === "CONFIRMED").length,
         state.bookings.filter(b => b.status === "REJECTED").length,
         state.bookings.filter(b => b.status === "COMPLETED").length
       ];
-      const max = Math.max(1, ...values);
-      ctx.font = "18px Tahoma";
-      ctx.fillStyle = "#17211d";
-      ctx.fillText("สรุปสถานะการจองวันนี้", 22, 34);
-      values.forEach((value, index) => {
-        const x = 42 + index * 138;
-        const h = (value / max) * 118;
-        ctx.fillStyle = ["#b7791f", "#16794a", "#c2412f", "#2563a9"][index];
-        ctx.fillRect(x, 170 - h, 78, h);
-        ctx.fillStyle = "#17211d";
-        ctx.fillText(String(value), x + 30, 160 - h);
-        ctx.font = "14px Tahoma";
-        ctx.fillText(labels[index], x - 8, 198);
-        ctx.font = "18px Tahoma";
+
+      const colors = ["#d97706", "#16a34a", "#dc2626", "#2563eb"];
+      const maxCount = Math.max(1, ...counts);
+      const chartTop = 40;
+      const chartHeight = 160;
+      const barWidth = 60;
+      const spacing = 135;
+      const startX = 65;
+
+      // Draw title
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "bold 15px Prompt, sans-serif";
+      ctx.fillText("สถิติภาพรวมคำขอจองโต๊ะ", 25, 25);
+
+      // Draw Gridlines
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = chartTop + (chartHeight / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(35, y);
+        ctx.lineTo(canvas.width - 25, y);
+        ctx.stroke();
+      }
+
+      // Draw Bars
+      counts.forEach((val, idx) => {
+        const x = startX + idx * spacing;
+        const h = (val / maxCount) * chartHeight;
+        const y = chartTop + chartHeight - h;
+
+        // Rounded bar
+        ctx.fillStyle = colors[idx];
+        ctx.beginPath();
+        const r = 6;
+        ctx.moveTo(x, y + r);
+        ctx.arcTo(x, y, x + r, y, r);
+        ctx.arcTo(x + barWidth, y, x + barWidth, y + r, r);
+        ctx.lineTo(x + barWidth, chartTop + chartHeight);
+        ctx.lineTo(x, chartTop + chartHeight);
+        ctx.closePath();
+        ctx.fill();
+
+        // Count Value
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "bold 14px Prompt, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(String(val), x + barWidth / 2, y - 8);
+
+        // Label
+        ctx.fillStyle = "#64748b";
+        ctx.font = "12px Prompt, sans-serif";
+        ctx.fillText(labels[idx], x + barWidth / 2, chartTop + chartHeight + 24);
       });
-    }
-    function render() {
-      updateAuthView();
-      if (!state.currentUser) return;
-      renderCustomerNotice();
-      renderCustomerBooking();
-      renderFloor("customerFloor", "customer");
-      renderFloor("staffFloor", "staff");
-      renderBookings();
-      renderMetrics();
-      drawChart();
-      save();
+      ctx.textAlign = "left";
     }
 
-    // Event Listeners สำหรับแท็บและการล็อกอิน
-    document.querySelectorAll("[data-tab]").forEach(button => {
-      button.onclick = () => {
-        switchTab(button.dataset.tab);
-        render();
-      };
-    });
+    function renderApp() {
+      const authScreen = document.getElementById("authScreen");
+      const appScreen = document.getElementById("appScreen");
 
-    document.getElementById("loginForm").onsubmit = event => {
-      event.preventDefault();
-      const u = document.getElementById("usernameInput").value;
-      const p = document.getElementById("passwordInput").value;
-      login(u, p);
+      // 1. Check Authentication Guard
+      if (!state.currentUser) {
+        authScreen.classList.remove("hidden");
+        appScreen.classList.add("hidden");
+        return;
+      }
+
+      authScreen.classList.add("hidden");
+      appScreen.classList.remove("hidden");
+
+      // 2. Set Profile info
+      document.getElementById("displayUserName").textContent = state.currentUser.name;
+      document.getElementById("displayUserRole").textContent = roleLabels[state.currentUser.role] || state.currentUser.role;
+      document.getElementById("userAvatarText").textContent = (state.currentUser.name || "U")[0];
+
+      // 3. Tab Visibility based on Role (TC-001, TC-003)
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        const tab = btn.dataset.tab;
+        if (state.currentUser.role === "customer") {
+          btn.style.display = tab === "customer" ? "inline-block" : "none";
+        } else if (state.currentUser.role === "staff") {
+          btn.style.display = tab === "owner" ? "none" : "inline-block";
+        } else {
+          btn.style.display = "inline-block"; // Owner sees all
+        }
+      });
+
+      // 4. Pre-fill customer form if available
+      if (state.currentUser.role === "customer") {
+        const nameInput = document.getElementById("customerName");
+        const phoneInput = document.getElementById("customerPhone");
+        if (nameInput && !nameInput.value) nameInput.value = state.currentUser.name || "";
+        if (phoneInput && !phoneInput.value) phoneInput.value = state.currentUser.phone || "";
+      }
+
+      // 5. Customer Banner Notice (TC-006, TC-008)
+      const banner = document.getElementById("customerNoticeBanner");
+      const noticeText = document.getElementById("customerNoticeText");
+      if (state.settings.onlineOpen) {
+        banner.className = "p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-emerald-50/90 border-emerald-200 text-emerald-900";
+        noticeText.textContent = `วันนี้ร้านเปิดรับจองออนไลน์เวลา ${state.settings.openTime} - ${state.settings.closeTime} น. โปรดเลือกโต๊ะที่ต้องการและรอการยืนยันครับ`;
+      } else {
+        banner.className = "p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-rose-50 border-rose-200 text-rose-900";
+        noticeText.textContent = `ขณะนี้ทางร้าน "ปิดรับจองออนไลน์ชั่วคราว" เนื่องจากมีลูกค้าหน้าร้านหนาแน่น กรุณาติดต่อทางร้านโดยตรง`;
+      }
+
+      // 6. Navigation online badge
+      const navBadge = document.getElementById("navOnlineBadge");
+      if (state.settings.onlineOpen) {
+        navBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200";
+        navBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>ออนไลน์`;
+      } else {
+        navBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200";
+        navBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span>ปิดรับจอง`;
+      }
+
+      // 7. Staff KPI Metrics
+      document.getElementById("pendingCount").textContent = state.bookings.filter(b => b.status === "PENDING").length;
+      document.getElementById("confirmedCount").textContent = state.bookings.filter(b => b.status === "CONFIRMED").length;
+      const totalRevenue = state.orders.filter(o => o.paid).reduce((sum, o) => sum + o.total, 0);
+      document.getElementById("paidTotal").textContent = formatBaht(totalRevenue);
+      document.getElementById("onlineStatusText").textContent = state.settings.onlineOpen ? "เปิดอยู่" : "ปิดชั่วคราว";
+
+      const toggleOnlineBtn = document.getElementById("toggleOnlineBtn");
+      if (state.settings.onlineOpen) {
+        toggleOnlineBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-amber-500 hover:bg-amber-600 text-white shadow-xs";
+        toggleOnlineBtn.textContent = "ปิดรับจองออนไลน์";
+      } else {
+        toggleOnlineBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs";
+        toggleOnlineBtn.textContent = "เปิดรับจองออนไลน์";
+      }
+
+      document.getElementById("todayDateStaff").textContent = getTodayString();
+
+      // 8. Render Floor Plans & Subcomponents
+      renderFloor("customerFloorContainer", false);
+      renderFloor("staffFloorContainer", true);
+      renderCustomerResult();
+      renderBookingsList();
+      switchTab(state.activeTab);
+    }
+
+    // Form Login Submit
+    document.getElementById("loginForm").onsubmit = e => {
+      e.preventDefault();
+      login(
+        document.getElementById("usernameInput").value,
+        document.getElementById("passwordInput").value
+      );
     };
 
+    // Preset Login Buttons (TC-001, TC-003)
     document.querySelectorAll("[data-preset]").forEach(btn => {
       btn.onclick = () => {
-        const presetRole = btn.dataset.preset;
-        const found = users.find(u => u.role === presetRole);
-        if (found) {
-          document.getElementById("usernameInput").value = found.username;
-          document.getElementById("passwordInput").value = found.password;
-          login(found.username, found.password);
+        const role = btn.dataset.preset;
+        const user = users.find(u => u.role === role);
+        if (user) {
+          document.getElementById("usernameInput").value = user.username;
+          document.getElementById("passwordInput").value = user.password;
+          login(user.username, user.password);
         }
       };
     });
 
+    // Logout
     document.getElementById("logoutBtn").onclick = logout;
 
-    document.getElementById("bookingForm").onsubmit = event => {
-      event.preventDefault();
-      if (!state.settings.onlineOpen) return alert("ขณะนี้ร้านปิดรับจองออนไลน์ชั่วคราว");
-      if (!state.selectedTable) return alert("กรุณาเลือกโต๊ะที่ต้องการ");
-      const time = joinTime("bookingHour", "bookingMinute");
-      if (!withinHours(time)) return alert(`กรุณาเลือกเวลาภายในช่วง ${state.settings.openTime} - ${state.settings.closeTime}`);
-      const booking = {
-        id: crypto.randomUUID(),
+    // Tab Buttons
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.onclick = () => switchTab(btn.dataset.tab);
+    });
+
+    // Customer Booking Form Submission (TC-004, TC-005, TC-006, TC-007, TC-008)
+    document.getElementById("bookingForm").onsubmit = e => {
+      e.preventDefault();
+
+      // TC-008 Check
+      if (!state.settings.onlineOpen) {
+        showToast("ขณะนี้ทางร้านปิดรับจองออนไลน์ชั่วคราว ไม่สามารถส่งคำขอได้", "error");
+        return;
+      }
+
+      // TC-005 Check
+      if (!state.selectedTable) {
+        showToast("กรุณาเลือกโต๊ะที่ต้องการจากผังโต๊ะด้านซ้ายก่อนส่งคำขอ", "warning");
+        return;
+      }
+
+      const hour = document.getElementById("bookingHour").value;
+      const min = document.getElementById("bookingMinute").value;
+      const bookingTime = `${hour}:${min}`;
+
+      // TC-006 Check
+      if (bookingTime < state.settings.openTime || bookingTime >= state.settings.closeTime) {
+        showToast(`กรุณาเลือกเวลาในช่วงเวลาเปิดร้าน (${state.settings.openTime} - ${state.settings.closeTime} น.)`, "warning");
+        return;
+      }
+
+      // TC-007 Booking Creation
+      const newBooking = {
+        id: "BK-" + Math.floor(100000 + Math.random() * 900000),
         name: document.getElementById("customerName").value.trim(),
         phone: document.getElementById("customerPhone").value.trim(),
         partySize: Number(document.getElementById("partySize").value),
-        time,
+        time: bookingTime,
         tableId: state.selectedTable,
-        status: "PENDING"
+        status: "PENDING",
+        createdAt: new Date().toISOString()
       };
-      state.bookings.push(booking);
-      state.currentBookingId = booking.id;
+
+      state.bookings.push(newBooking);
+      state.currentBookingId = newBooking.id;
       state.selectedTable = null;
-      event.target.reset();
-      document.getElementById("partySize").value = 2;
-      const open = splitTime(state.settings.openTime);
-      document.getElementById("bookingHour").value = open.hour;
-      document.getElementById("bookingMinute").value = open.minute;
-      save();
-      render();
+
+      document.getElementById("selectedTableText").value = "";
+      saveState();
+      renderApp();
+      showToast("ส่งคำขอจองเรียบร้อยแล้ว! กรุณารอพนักงานตรวจสอบและกดยืนยัน", "success");
     };
 
-    document.getElementById("clearCustomer").onclick = () => {
+    // Clear Customer Form
+    document.getElementById("clearCustomerBtn").onclick = () => {
       state.selectedTable = null;
-      state.currentBookingId = null;
-      document.getElementById("bookingForm").reset();
-      document.getElementById("partySize").value = 2;
-      const open = splitTime(state.settings.openTime);
-      document.getElementById("bookingHour").value = open.hour;
-      document.getElementById("bookingMinute").value = open.minute;
-      document.getElementById("customerResult").innerHTML = "";
-      render();
+      document.getElementById("selectedTableText").value = "";
+      renderFloor("customerFloorContainer", false);
+      showToast("ล้างข้อมูลฟอร์มเรียบร้อยแล้ว", "info");
     };
 
-    document.getElementById("toggleOnline").onclick = () => {
+    // Toggle Online Status (TC-008)
+    document.getElementById("toggleOnlineBtn").onclick = () => {
       state.settings.onlineOpen = !state.settings.onlineOpen;
-      save();
-      render();
+      saveState();
+      renderApp();
+      showToast(`ปรับสถานะรับจองออนไลน์เป็น: ${state.settings.onlineOpen ? "เปิดรับจอง" : "ปิดรับจอง"}`, "info");
     };
 
-    document.getElementById("saveSettings").onclick = () => {
-      const openTime = joinTime("openHour", "openMinute");
-      const closeTime = joinTime("closeHour", "closeMinute");
-      if (openTime >= closeTime) return alert("เวลาปิดร้านต้องมากกว่าเวลาเปิดร้าน");
+    // Save Opening Settings (TC-016)
+    document.getElementById("saveSettingsBtn").onclick = () => {
+      const openTime = `${document.getElementById("openHour").value}:${document.getElementById("openMinute").value}`;
+      const closeTime = `${document.getElementById("closeHour").value}:${document.getElementById("closeMinute").value}`;
+
+      // TC-016 Validation
+      if (openTime >= closeTime) {
+        showToast("เวลาปิดร้านต้องมากกว่าเวลาเปิดร้าน กรุณาตั้งค่าใหม่อีกครั้ง", "error");
+        return;
+      }
+
       state.settings.openTime = openTime;
       state.settings.closeTime = closeTime;
-      save();
-      render();
-      alert("บันทึกเวลาเปิด-ปิดร้านแล้ว");
+      saveState();
+      renderApp();
+      showToast(`บันทึกเวลาเปิดร้านใหม่ (${openTime} - ${closeTime} น.) สำเร็จ`, "success");
     };
 
-    document.getElementById("resetDemo").onclick = () => {
-      if (!confirm("ต้องการรีเซ็ตข้อมูลตัวอย่างทั้งหมดใช่ไหม")) return;
-      state = JSON.parse(JSON.stringify(initialState));
-      localStorage.removeItem("thaiRestaurantBooking");
-      render();
+    // Reset Demo Data (TC-017)
+    document.getElementById("resetDemoBtn").onclick = () => {
+      showConfirmModal(
+        "รีเซ็ตข้อมูลตัวอย่าง?",
+        "คุณต้องการล้างข้อมูลการจอง โต๊ะ และออเดอร์ทั้งหมดเพื่อเริ่มต้นใหม่ใช่หรือไม่?",
+        () => {
+          localStorage.removeItem("thaiGourmet_v2");
+          const currentUser = state.currentUser;
+          state = JSON.parse(JSON.stringify(initialState));
+          state.currentUser = currentUser;
+          saveState();
+          populateTimeSelectors();
+          renderApp();
+          showToast("รีเซ็ตข้อมูลตัวอย่างทั้งหมดเรียบร้อยแล้ว", "success");
+        }
+      );
     };
 
-    // โหลดตัวเลือกเวลาและตั้งค่าหน้าจอเริ่มต้น
-    populateTimeSelects();
-    if (state.currentUser) {
-      if (state.currentUser.role === "staff") switchTab("staff");
-      else if (state.currentUser.role === "owner") switchTab("owner");
-      else switchTab("customer");
-    }
-    render();
+    window.onload = () => {
+      populateTimeSelectors();
+      renderApp();
+    };
   </script>
 </body>
 </html>
