@@ -54,6 +54,51 @@
       color: var(--ink);
     }
     label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 700; }
+    
+    /* Login Screen */
+    .auth-overlay {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,.96);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+      display: grid;
+      gap: 18px;
+    }
+    .auth-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .auth-presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .auth-presets button {
+      padding: 8px;
+      font-size: 12px;
+    }
+    .auth-error {
+      color: var(--red);
+      background: var(--soft-red);
+      border: 1px solid #f5c6bf;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      display: none;
+    }
+
+    /* Main App */
     .shell { max-width: 1180px; margin: 0 auto; padding: 18px; }
     .topbar {
       display: flex;
@@ -68,6 +113,26 @@
       display: grid; place-items: center;
       background: var(--ink); color: white; font-weight: 900;
     }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+    .user-info { font-size: 13px; }
+    .user-role-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #eef3ef;
+      color: var(--ink);
+    }
+    
     h1, h2, h3, p { margin-top: 0; }
     h1 { font-size: clamp(24px, 4vw, 42px); margin-bottom: 4px; letter-spacing: 0; }
     h2 { font-size: 22px; margin-bottom: 12px; }
@@ -251,7 +316,43 @@
   </style>
 </head>
 <body>
-  <main class="shell">
+
+  <!-- หน้าต่างเข้าสู่ระบบ -->
+  <div id="authScreen" class="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="mark">โต๊ะ</div>
+        <div>
+          <h2 style="margin: 0; font-size: 20px;">เข้าสู่ระบบ</h2>
+          <p class="muted" style="margin: 0; font-size: 13px;">ระบบจองโต๊ะร้านอาหาร</p>
+        </div>
+      </div>
+      <div id="authError" class="auth-error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+      <form id="loginForm" style="display: grid; gap: 12px;">
+        <label>ชื่อผู้ใช้งาน
+          <input type="text" id="usernameInput" required placeholder="เช่น customer, staff หรือ owner" autocomplete="username" />
+        </label>
+        <label>รหัสผ่าน
+          <input type="password" id="passwordInput" required placeholder="••••" autocomplete="current-password" />
+        </label>
+        <button type="submit" class="good" style="margin-top: 6px;">เข้าสู่ระบบ</button>
+      </form>
+
+      <div style="border-top: 1px solid var(--line); padding-top: 14px;">
+        <span class="muted" style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">
+          ปุ่มลัดสำหรับทดสอบระบบ (รหัสผ่านคือ 1234):
+        </span>
+        <div class="auth-presets">
+          <button type="button" class="secondary" data-preset="customer">ลูกค้า</button>
+          <button type="button" class="secondary" data-preset="staff">พนักงาน</button>
+          <button type="button" class="secondary" data-preset="owner">เจ้าของร้าน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- หน้าจอแอปพลิเคชันหลัก -->
+  <main class="shell" id="appScreen" style="display: none;">
     <header class="topbar">
       <div class="brand">
         <div class="mark">โต๊ะ</div>
@@ -260,11 +361,20 @@
           <p class="muted">จองโต๊ะภายในวันนี้ รอพนักงานยืนยัน แล้วจึงสั่งอาหารล่วงหน้าได้</p>
         </div>
       </div>
-      <nav class="tabs" aria-label="สลับหน้าจอ">
-        <button class="active" data-tab="customer">ลูกค้า</button>
-        <button class="secondary" data-tab="staff">พนักงาน</button>
-        <button class="secondary" data-tab="owner">เจ้าของร้าน</button>
-      </nav>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div class="user-profile">
+          <div class="user-info">
+            <span id="displayUserName" style="font-weight: 700;">ชื่อผู้ใช้</span>
+            <span id="displayUserRole" class="user-role-badge">บทบาท</span>
+          </div>
+          <button type="button" id="logoutBtn" class="secondary" style="padding: 6px 10px; font-size: 12px;">ออกจากระบบ</button>
+        </div>
+        <nav class="tabs" aria-label="สลับหน้าจอ">
+          <button class="active" data-tab="customer">ลูกค้า</button>
+          <button class="secondary" data-tab="staff">พนักงาน</button>
+          <button class="secondary" data-tab="owner">เจ้าของร้าน</button>
+        </nav>
+      </div>
     </header>
 
     <section id="customer" class="section active">
@@ -354,6 +464,19 @@
   </main>
 
   <script>
+    // ฐานข้อมูลผู้ใช้งานในระบบ
+    const users = [
+      { username: "customer", password: "123", name: "คุณสมชาย", role: "customer", phone: "081-234-5678" },
+      { username: "staff", password: "123", name: "พนักงานสมศรี", role: "staff" },
+      { username: "owner", password: "123", name: "ผู้จัดการร้าน", role: "owner" }
+    ];
+
+    const roleNames = {
+      customer: "ลูกค้า",
+      staff: "พนักงาน",
+      owner: "เจ้าของร้าน"
+    };
+
     const statusText = {
       AVAILABLE: "ว่าง",
       RESERVED: "จองแล้ว",
@@ -388,6 +511,7 @@
       { id: "special", name: "พิเศษ", price: 50 }
     ];
     const initialState = {
+      currentUser: null,
       settings: { openTime: "10:00", closeTime: "21:00", onlineOpen: true },
       selectedTable: null,
       currentBookingId: null,
@@ -443,6 +567,84 @@
     function tableById(id) {
       return state.tables.find(t => t.id === Number(id));
     }
+
+    // --- จัดการเรื่อง Authentication & Roles ---
+    function updateAuthView() {
+      const authScreen = document.getElementById("authScreen");
+      const appScreen = document.getElementById("appScreen");
+
+      if (!state.currentUser) {
+        authScreen.style.display = "grid";
+        appScreen.style.display = "none";
+        return;
+      }
+
+      authScreen.style.display = "none";
+      appScreen.style.display = "block";
+
+      document.getElementById("displayUserName").textContent = state.currentUser.name;
+      document.getElementById("displayUserRole").textContent = roleNames[state.currentUser.role] || state.currentUser.role;
+
+      // ปรับการแสดงผลแท็บตามสิทธิ์
+      const tabButtons = document.querySelectorAll("[data-tab]");
+      tabButtons.forEach(btn => {
+        const tab = btn.dataset.tab;
+        if (state.currentUser.role === "customer") {
+          btn.style.display = tab === "customer" ? "inline-block" : "none";
+        } else if (state.currentUser.role === "staff") {
+          btn.style.display = tab === "owner" ? "none" : "inline-block";
+        } else {
+          btn.style.display = "inline-block"; // owner เข้าได้ทุกแท็บ
+        }
+      });
+
+      // กรอกข้อมูลอัตโนมัติให้ลูกค้า
+      if (state.currentUser.role === "customer") {
+        const nameInput = document.getElementById("customerName");
+        const phoneInput = document.getElementById("customerPhone");
+        if (!nameInput.value && state.currentUser.name) nameInput.value = state.currentUser.name;
+        if (!phoneInput.value && state.currentUser.phone) phoneInput.value = state.currentUser.phone;
+      }
+    }
+
+    function login(username, password) {
+      const found = users.find(u => u.username === username.trim().toLowerCase() && u.password === password);
+      if (!found) {
+        document.getElementById("authError").style.display = "block";
+        return false;
+      }
+
+      document.getElementById("authError").style.display = "none";
+      state.currentUser = { ...found };
+      
+      // เลือกแท็บเริ่มต้นให้เหมาะสมกับบทบาท
+      let defaultTab = "customer";
+      if (found.role === "staff") defaultTab = "staff";
+      if (found.role === "owner") defaultTab = "owner";
+
+      switchTab(defaultTab);
+      save();
+      render();
+      return true;
+    }
+
+    function logout() {
+      state.currentUser = null;
+      document.getElementById("loginForm").reset();
+      document.getElementById("authError").style.display = "none";
+      save();
+      updateAuthView();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll("[data-tab]").forEach(b => {
+        b.className = b.dataset.tab === tabId ? "active" : "secondary";
+      });
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      const targetSection = document.getElementById(tabId);
+      if (targetSection) targetSection.classList.add("active");
+    }
+
     function renderFloor(target, mode) {
       const root = document.getElementById(target);
       root.innerHTML = "";
@@ -680,6 +882,8 @@
       });
     }
     function render() {
+      updateAuthView();
+      if (!state.currentUser) return;
       renderCustomerNotice();
       renderCustomerBooking();
       renderFloor("customerFloor", "customer");
@@ -689,15 +893,36 @@
       drawChart();
       save();
     }
+
+    // Event Listeners สำหรับแท็บและการล็อกอิน
     document.querySelectorAll("[data-tab]").forEach(button => {
       button.onclick = () => {
-        document.querySelectorAll("[data-tab]").forEach(b => { b.className = "secondary"; });
-        button.className = "active";
-        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-        document.getElementById(button.dataset.tab).classList.add("active");
+        switchTab(button.dataset.tab);
         render();
       };
     });
+
+    document.getElementById("loginForm").onsubmit = event => {
+      event.preventDefault();
+      const u = document.getElementById("usernameInput").value;
+      const p = document.getElementById("passwordInput").value;
+      login(u, p);
+    };
+
+    document.querySelectorAll("[data-preset]").forEach(btn => {
+      btn.onclick = () => {
+        const presetRole = btn.dataset.preset;
+        const found = users.find(u => u.role === presetRole);
+        if (found) {
+          document.getElementById("usernameInput").value = found.username;
+          document.getElementById("passwordInput").value = found.password;
+          login(found.username, found.password);
+        }
+      };
+    });
+
+    document.getElementById("logoutBtn").onclick = logout;
+
     document.getElementById("bookingForm").onsubmit = event => {
       event.preventDefault();
       if (!state.settings.onlineOpen) return alert("ขณะนี้ร้านปิดรับจองออนไลน์ชั่วคราว");
@@ -724,6 +949,7 @@
       save();
       render();
     };
+
     document.getElementById("clearCustomer").onclick = () => {
       state.selectedTable = null;
       state.currentBookingId = null;
@@ -735,11 +961,13 @@
       document.getElementById("customerResult").innerHTML = "";
       render();
     };
+
     document.getElementById("toggleOnline").onclick = () => {
       state.settings.onlineOpen = !state.settings.onlineOpen;
       save();
       render();
     };
+
     document.getElementById("saveSettings").onclick = () => {
       const openTime = joinTime("openHour", "openMinute");
       const closeTime = joinTime("closeHour", "closeMinute");
@@ -750,12 +978,14 @@
       render();
       alert("บันทึกเวลาเปิด-ปิดร้านแล้ว");
     };
+
     document.getElementById("resetDemo").onclick = () => {
       if (!confirm("ต้องการรีเซ็ตข้อมูลตัวอย่างทั้งหมดใช่ไหม")) return;
       state = JSON.parse(JSON.stringify(initialState));
       localStorage.removeItem("thaiRestaurantBooking");
       render();
     };
+
     populateTimeSelects();
     render();
   </script>
