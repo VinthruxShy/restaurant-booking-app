@@ -340,7 +340,7 @@
 
       <div style="border-top: 1px solid var(--line); padding-top: 14px;">
         <span class="muted" style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">
-          ปุ่มลัดสำหรับทดสอบระบบ (รหัสผ่านคือ 1234):
+          ปุ่มลัดสำหรับทดสอบระบบ (รหัสผ่านคือ 123):
         </span>
         <div class="auth-presets">
           <button type="button" class="secondary" data-preset="customer">ลูกค้า</button>
@@ -585,20 +585,21 @@
       document.getElementById("displayUserName").textContent = state.currentUser.name;
       document.getElementById("displayUserRole").textContent = roleNames[state.currentUser.role] || state.currentUser.role;
 
-      // ปรับการแสดงผลแท็บตามสิทธิ์
+      // จัดการซ่อน-แสดงแท็บตามระดับสิทธิ์ของผู้ใช้งาน
       const tabButtons = document.querySelectorAll("[data-tab]");
       tabButtons.forEach(btn => {
         const tab = btn.dataset.tab;
         if (state.currentUser.role === "customer") {
           btn.style.display = tab === "customer" ? "inline-block" : "none";
         } else if (state.currentUser.role === "staff") {
+          // ซ่อนแท็บเจ้าของร้านสำหรับพนักงาน
           btn.style.display = tab === "owner" ? "none" : "inline-block";
         } else {
-          btn.style.display = "inline-block"; // owner เข้าได้ทุกแท็บ
+          btn.style.display = "inline-block"; // เจ้าของร้านเห็นทุกแท็บ
         }
       });
 
-      // กรอกข้อมูลอัตโนมัติให้ลูกค้า
+      // กรอกข้อมูลอัตโนมัติเมื่อเป็นลูกค้า
       if (state.currentUser.role === "customer") {
         const nameInput = document.getElementById("customerName");
         const phoneInput = document.getElementById("customerPhone");
@@ -617,7 +618,7 @@
       document.getElementById("authError").style.display = "none";
       state.currentUser = { ...found };
       
-      // เลือกแท็บเริ่มต้นให้เหมาะสมกับบทบาท
+      // กำหนดแท็บเริ่มต้นให้ตรงตามบทบาททันทีเมื่อล็อกอินสำเร็จ
       let defaultTab = "customer";
       if (found.role === "staff") defaultTab = "staff";
       if (found.role === "owner") defaultTab = "owner";
@@ -637,6 +638,12 @@
     }
 
     function switchTab(tabId) {
+      if (!state.currentUser) return;
+
+      // ตรวจสอบสิทธิ์ป้องกันการเข้าถึงข้ามสิทธิ์ (Security Guard)
+      if (state.currentUser.role === "customer" && tabId !== "customer") return;
+      if (state.currentUser.role === "staff" && tabId === "owner") return;
+
       document.querySelectorAll("[data-tab]").forEach(b => {
         b.className = b.dataset.tab === tabId ? "active" : "secondary";
       });
@@ -986,7 +993,13 @@
       render();
     };
 
+    // โหลดตัวเลือกเวลาและตั้งค่าหน้าจอเริ่มต้น
     populateTimeSelects();
+    if (state.currentUser) {
+      if (state.currentUser.role === "staff") switchTab("staff");
+      else if (state.currentUser.role === "owner") switchTab("owner");
+      else switchTab("customer");
+    }
     render();
   </script>
 </body>
